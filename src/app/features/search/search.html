@@ -1,1 +1,33 @@
-<p>search works!</p>
+<div class="searchContainer">
+  <div class="relative w-1/2 mt-4">
+    <ng-icon
+      name="lucideSearch"
+      class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+      size="16"
+    />
+    <input
+      hlmInput
+      class="pl-9 w-full"
+      type="search"
+      placeholder="Search..."
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  @if (loading()) {
+    <hlm-spinner class="mt-6" />
+  }
+
+  @if (!loading()) {
+    <div class="results w-1/2 mt-4 flex flex-col gap-3">
+      @for (result of results(); track result.title) {
+        <section hlmCard>
+          <div hlmCardHeader>
+            <h3 hlmCardTitle>{{ result.title }}</h3>
+            <p hlmCardDescription>{{ result.description }}</p>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>
