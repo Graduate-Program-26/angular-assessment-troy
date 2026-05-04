@@ -1,12 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { AppButton } from './button-demo/button-demo';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [AppButton],
+  standalone: true,
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('angular-assessment-troy');
-}
+export class AppComponent {}
