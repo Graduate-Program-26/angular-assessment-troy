@@ -1,1 +1,102 @@
-<p>album works!</p>
+<div class="min-h-screen">
+  <div class="relative h-72 sm:h-80 w-full">
+    <div class="relative mx-auto flex h-full max-w-5xl items-end gap-6 px-6 pb-6">
+      <img
+        [src]="album().coverUrl"
+        [alt]="album().title"
+        class="hidden sm:block h-44 w-44 shrink-0"
+      />
+      <div class="flex flex-col justify-end gap-1 pb-1">
+        <h1 class="text-4xl sm:text-5xl font-black">{{ album().title }}</h1>
+        <div class="flex items-center gap-2">
+          <hlm-avatar class="size-6">
+            <img hlmAvatarImage [src]="album().artistImageUrl" [alt]="album().artistName" />
+            <span hlmAvatarFallback>{{ album().artistName[0] }}</span>
+          </hlm-avatar>
+          <span class="font-semibold">{{ album().artistName }}</span>
+          <span>{{ album().year }}</span>
+          <span>{{ tracks().length }} tracks</span>
+          <span>{{ album().totalDuration }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-5xl px-6 pt-6">
+    <div class="mb-8 flex items-center gap-4">
+      <button hlmBtn size="icon">
+        <ng-icon name="lucidePlay" size="22" />
+      </button>
+    </div>
+
+    <section class="mb-12">
+      <div class="grid grid-cols-[2rem_1fr_auto_auto] gap-x-4 px-4 pb-2">
+        <span class="text-center">#</span>
+        <span>Title</span>
+        <span class="hidden md:block pr-8">Plays</span>
+        <span><ng-icon name="lucideClock" size="14" /></span>
+      </div>
+
+      @for (song of tracks(); track song.position) {
+        <div
+          class="group grid grid-cols-[2rem_1fr_auto_auto] gap-x-4 items-center px-4 py-2.5 cursor-pointer"
+          role="button"
+          tabindex="0"
+          (mouseenter)="hoveredTrack.set(song.position)"
+          (mouseleave)="hoveredTrack.set(null)"
+          (click)="togglePlay(song.position)"
+          (keydown.enter)="togglePlay(song.position)"
+          (keydown.space)="togglePlay(song.position)"
+        >
+          <span class="relative flex items-center justify-center">
+            @if (playingTrack() === song.position) {
+              <ng-icon name="lucidePause" size="14" />
+            } @else if (hoveredTrack() === song.position) {
+              <ng-icon name="lucidePlay" size="14" />
+            } @else {
+              {{ song.position }}
+            }
+          </span>
+
+          <div class="flex min-w-0 items-center gap-2">
+            <div class="flex flex-col min-w-0">
+              <span class="truncate font-medium">{{ song.title }}</span>
+            </div>
+          </div>
+
+          <span class="hidden md:block pr-8">{{ song.plays }}</span>
+          <span>{{ song.duration }}</span>
+        </div>
+      }
+    </section>
+
+    <div class="mb-4">
+      <p>{{ album().year }} | {{ album().label }}</p>
+      <p>{{ album().genre }}</p>
+    </div>
+
+    <hlm-separator class="mb-10" />
+
+    <section class="pb-16">
+      <h2 class="mb-6 font-bold">More by {{ album().artistName }}</h2>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+        @for (related of moreByArtist(); track related.title) {
+          <div hlmCard class="group cursor-pointer p-0">
+            <div class="aspect-square w-full overflow-hidden relative">
+              <img [src]="related.cover" [alt]="related.title" class="h-full w-full object-cover" />
+              <div class="absolute inset-0 flex items-end justify-end p-2">
+                <button hlmBtn size="icon">
+                  <ng-icon name="lucidePlay" size="16" />
+                </button>
+              </div>
+            </div>
+            <div hlmCardContent class="px-3 py-3">
+              <h3 class="truncate font-semibold">{{ related.title }}</h3>
+              <p>{{ related.year }} | {{ related.type }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>
