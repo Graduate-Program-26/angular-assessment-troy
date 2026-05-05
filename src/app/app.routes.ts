@@ -13,4 +13,14 @@ export const routes: Routes = [
     path: 'album/:id',
     loadComponent: () => import('./features/album/album').then((m) => m.Album),
   },
+  {
+    path: 'playlist',
+    loadComponent: () =>
+      import('./features/playlist-creator/playlist-creator').then((m) => m.PlaylistsComponent),
+  },
+  {
+    path: 'playlist/:id',
+    loadComponent: () =>
+      import('./features/playlist-detail/playlist-detail').then((m) => m.PlaylistDetail),
+  },
 ];
