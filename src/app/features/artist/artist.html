@@ -1,1 +1,129 @@
-<p>artist works!</p>
+<div class="min-h-screen">
+  <div class="mx-auto max-w-5xl px-6">
+    <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center">
+      <hlm-avatar class="size-40 shrink-0 sm:self-center">
+        <img hlmAvatarImage [src]="artist().imageUrl" [alt]="artist().name" />
+        <span hlmAvatarFallback class="text-3xl font-bold">
+          {{ artist().initials }}
+        </span>
+      </hlm-avatar>
+
+      <div class="flex flex-1 flex-col gap-2">
+        <h1 class="text-5xl font-black tracking-tight">{{ artist().name }}</h1>
+        <p class="text-sm text-muted-foreground">{{ artist().genre }}</p>
+
+        <p class="text-xs text-muted-foreground">
+          <span class="font-medium">{{ artist().monthlyListeners }}</span> monthly listeners
+          &nbsp;&nbsp; <span class="font-medium">{{ artist().followers }}</span> followers
+        </p>
+        <p class="max-w-xl text-sm text-muted-foreground">{{ artist().bio }}</p>
+        <div class="flex items-center gap-3">
+          <button hlmBtn class="rounded-full font-bold px-7">
+            <ng-icon name="lucidePlay" size="14" class="mr-1.5" />
+            Play
+          </button>
+          <button hlmBtn variant="outline" class="rounded-full px-5">Follow</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="mb-12">
+      <h2 class="mb-4 text-xl font-bold">Popular</h2>
+
+      <div>
+        <div
+          class="grid grid-cols-[2rem_1fr_1fr_auto] gap-x-4 px-4 pb-2 text-xs font-medium uppercase text-muted-foreground border-b border-border"
+        >
+          <span class="text-center">#</span>
+          <span>Title</span>
+          <span class="hidden sm:block">Album</span>
+          <span><ng-icon name="lucideClock" size="14" /></span>
+        </div>
+
+        @for (track of visibleTracks(); track track.position) {
+          <div
+            class="group grid grid-cols-[2rem_1fr_1fr_auto] gap-x-4 items-center px-4 py-3 cursor-pointer"
+            [class.bg-muted]="hoveredTrack() === track.position"
+            (mouseenter)="hoveredTrack.set(track.position)"
+            (mouseleave)="hoveredTrack.set(null)"
+          >
+            <span class="relative flex items-center justify-center text-sm font-medium">
+              @if (hoveredTrack() === track.position) {
+                <ng-icon name="lucidePlay" size="14" />
+              } @else {
+                {{ track.position }}
+              }
+            </span>
+
+            <div class="flex flex-col min-w-0">
+              <span class="truncate text-sm font-medium">{{ track.title }}</span>
+              <span class="truncate text-xs text-muted-foreground sm:hidden">{{
+                track.album
+              }}</span>
+            </div>
+
+            <span class="hidden sm:block truncate text-sm text-muted-foreground">{{
+              track.album
+            }}</span>
+
+            <div class="flex items-center gap-4">
+              <span class="text-xs text-muted-foreground hidden md:block tabular-nums">{{
+                track.plays
+              }}</span>
+              <span class="text-sm text-muted-foreground tabular-nums">{{ track.duration }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (hasMoreTracks()) {
+        <div class="mt-4 flex justify-center">
+          <button hlmBtn variant="ghost" class="text-sm" (click)="showMoreTracks()">
+            Show more
+            <ng-icon name="lucideChevronDown" size="16" class="ml-1.5" />
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="pb-16">
+      <h2 class="mb-6 text-xl font-bold">Discography</h2>
+
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        @for (album of visibleAlbums(); track album.title) {
+          <div hlmCard class="group cursor-pointer border-0 rounded-xl overflow-hidden p-0">
+            <div class="aspect-square w-full overflow-hidden relative">
+              <img [src]="album.cover" [alt]="album.title" class="h-full w-full object-cover" />
+              <div
+                class="absolute inset-0 flex items-end justify-end p-2 opacity-0 group-hover:opacity-100"
+              >
+                <button hlmBtn size="icon" class="rounded-full h-10 w-10">
+                  <ng-icon name="lucidePlay" size="16" />
+                </button>
+              </div>
+            </div>
+
+            <div hlmCardContent class="px-3 py-3">
+              <h3 class="truncate text-sm font-semibold">{{ album.title }}</h3>
+              <p class="text-xs text-muted-foreground">
+                {{ album.year }} &nbsp;&nbsp; {{ album.type }}
+              </p>
+              <p class="text-xs text-muted-foreground">
+                {{ album.trackCount }} {{ album.trackCount === 1 ? 'track' : 'tracks' }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (hasMoreAlbums()) {
+        <div class="mt-6 flex justify-center">
+          <button hlmBtn variant="ghost" class="text-sm" (click)="showMoreAlbums()">
+            Show more
+            <ng-icon name="lucideChevronDown" size="16" class="ml-1.5" />
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+</div>
