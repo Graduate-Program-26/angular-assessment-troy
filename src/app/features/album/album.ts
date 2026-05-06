@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlay, lucideClock, lucidePause } from '@ng-icons/lucide';
+import { lucidePlay, lucideClock, lucidePause, lucideListPlus } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { PlaylistStore } from '../../store/playlist.store';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 
 export interface AlbumTrack {
   position: number;
   title: string;
   duration: string;
-  plays: string;
   explicit: boolean;
 }
 
@@ -28,19 +29,28 @@ export interface AlbumData {
 
 @Component({
   selector: 'app-album',
-  imports: [HlmAvatarImports, HlmCardImports, HlmButtonImports, HlmSeparatorImports, NgIcon],
+  imports: [
+    HlmAvatarImports,
+    HlmCardImports,
+    HlmButtonImports,
+    HlmSeparatorImports,
+    HlmDropdownMenuImports,
+    NgIcon,
+  ],
   providers: [
     provideIcons({
       lucidePlay,
       lucideClock,
       lucidePause,
+      lucideListPlus,
     }),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './album.html',
   styleUrl: './album.scss',
 })
-export class Album {
+export class Album implements OnInit {
+  readonly playlistStore = inject(PlaylistStore);
   readonly hoveredTrack = signal<number | null>(null);
   readonly playingTrack = signal<number | null>(null);
   readonly isLiked = signal(false);
@@ -62,70 +72,62 @@ export class Album {
       position: 1,
       title: 'Sed Do Eiusmod',
       duration: '3:29',
-      plays: '61,337,882',
+
       explicit: false,
     },
     {
       position: 2,
       title: 'Ut Labore Dolore',
       duration: '5:01',
-      plays: '48,110,230',
+
       explicit: true,
     },
     {
       position: 3,
       title: 'Ullamco Laboris Nisi',
       duration: '3:18',
-      plays: '29,876,543',
       explicit: false,
     },
     {
       position: 4,
       title: 'Commodo Consequat Duis',
       duration: '3:02',
-      plays: '19,334,009',
       explicit: false,
     },
     {
       position: 5,
       title: 'Aute Irure Dolor',
       duration: '6:08',
-      plays: '15,220,448',
       explicit: true,
     },
     {
       position: 6,
       title: 'Reprehenderit Voluptate',
       duration: '4:21',
-      plays: '12,445,003',
       explicit: false,
     },
     {
       position: 7,
       title: 'Velit Esse Cillum',
       duration: '3:55',
-      plays: '10,887,221',
       explicit: false,
     },
     {
       position: 8,
       title: 'Fugiat Nulla Pariatur',
       duration: '4:09',
-      plays: '9,112,774',
       explicit: true,
     },
     {
       position: 9,
       title: 'Excepteur Sint Occaecat',
       duration: '5:44',
-      plays: '7,334,561',
       explicit: false,
     },
     {
       position: 10,
       title: 'Cupidatat Non Proident',
       duration: '4:29',
-      plays: '6,778,002',
       explicit: false,
     },
   ]);
@@ -157,11 +159,27 @@ export class Album {
     },
   ]);
 
+  ngOnInit(): void {
+    this.playlistStore.loadPlaylists();
+  }
+
   togglePlay(position: number): void {
     this.playingTrack.update((current) => (current === position ? null : position));
   }
 
   toggleLike(): void {
     this.isLiked.update((v) => !v);
+  }
+
+  addToPlaylist(track: AlbumTrack, playlistId: number): void {
+    const [minutes, seconds] = track.duration.split(':').map(Number);
+    const order = this.playlistStore.activeSongs().length;
+    this.playlistStore.addSong({
+      title: track.title,
+      artist: this.album().artistName,
+      playlistId,
+      order,
+      duration: minutes * 60 + seconds,
+    });
   }
 }

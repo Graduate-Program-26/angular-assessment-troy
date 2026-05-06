@@ -16,7 +16,6 @@ export interface Track {
   title: string;
   album: string;
   duration: string;
-  plays: string;
 }
 
 export interface Album {
@@ -71,70 +70,60 @@ export class Artist {
       title: 'Lorem Ipsum',
       album: 'Dolor Sit Amet',
       duration: '3:47',
-      plays: '94,201,441',
     },
     {
       position: 2,
       title: 'Consectetur Adipiscing',
       album: 'Dolor Sit Amet',
       duration: '4:12',
-      plays: '72,884,009',
     },
     {
       position: 3,
       title: 'Sed Do Eiusmod',
       album: 'Tempor Incididunt',
       duration: '3:29',
-      plays: '61,337,882',
     },
     {
       position: 4,
       title: 'Ut Labore Dolore',
       album: 'Tempor Incididunt',
       duration: '5:01',
-      plays: '48,110,230',
     },
     {
       position: 5,
       title: 'Magna Aliqua Enim',
       album: 'Magna Aliqua EP',
       duration: '3:55',
-      plays: '41,009,774',
     },
     {
       position: 6,
       title: 'Quis Nostrud Exercitation',
       album: 'Dolor Sit Amet',
       duration: '4:33',
-      plays: '38,450,101',
     },
     {
       position: 7,
       title: 'Ullamco Laboris Nisi',
       album: 'Tempor Incididunt',
       duration: '3:18',
-      plays: '29,876,543',
     },
     {
       position: 8,
       title: 'Aliquip Ex Ea',
       album: 'Aliquip Ex Ea',
       duration: '4:44',
-      plays: '24,562,118',
     },
     {
       position: 9,
       title: 'Commodo Consequat Duis',
       album: 'Tempor Incididunt',
       duration: '3:02',
-      plays: '19,334,009',
     },
     {
       position: 10,
       title: 'Aute Irure Dolor',
       album: 'Magna Aliqua EP',
       duration: '6:08',
-      plays: '15,220,448',
     },
   ]);
 

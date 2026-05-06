@@ -24,7 +24,8 @@
       "@spartan-ng/helm/tooltip": ["./libs/spartan-ui/tooltip/src/index.ts"],
       "@spartan-ng/helm/card": ["./libs/spartan-ui/card/src/index.ts"],
       "@spartan-ng/helm/spinner": ["./libs/spartan-ui/spinner/src/index.ts"],
-      "@spartan-ng/helm/avatar": ["./libs/spartan-ui/avatar/src/index.ts"]
+      "@spartan-ng/helm/avatar": ["./libs/spartan-ui/avatar/src/index.ts"],
+      "@spartan-ng/helm/dropdown-menu": ["./libs/spartan-ui/dropdown-menu/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

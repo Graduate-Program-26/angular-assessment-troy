@@ -30,16 +30,16 @@
     </div>
 
     <section class="mb-12">
-      <div class="grid grid-cols-[2rem_1fr_auto_auto] gap-x-4 px-4 pb-2">
+      <div class="grid grid-cols-[2rem_1fr_auto_auto_2.5rem] gap-x-4 px-4 pb-2">
         <span class="text-center">#</span>
         <span>Title</span>
-        <span class="hidden md:block pr-8">Plays</span>
         <span><ng-icon name="lucideClock" size="14" /></span>
+        <span></span>
       </div>
 
       @for (song of tracks(); track song.position) {
         <div
-          class="group grid grid-cols-[2rem_1fr_auto_auto] gap-x-4 items-center px-4 py-2.5 cursor-pointer"
+          class="group grid grid-cols-[2rem_1fr_auto_auto_2.5rem] gap-x-4 items-center px-4 py-2.5 cursor-pointer"
           role="button"
           tabindex="0"
           (mouseenter)="hoveredTrack.set(song.position)"
@@ -64,8 +64,36 @@
             </div>
           </div>
 
-          <span class="hidden md:block pr-8">{{ song.plays }}</span>
           <span>{{ song.duration }}</span>
+
+          <ng-container>
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              [hlmDropdownMenuTrigger]="playlistMenu"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="$event.stopPropagation()"
+              (keydown.space)="$event.stopPropagation()"
+            >
+              <ng-icon name="lucideListPlus" size="16" />
+            </button>
+            <ng-template #playlistMenu>
+              <hlm-dropdown-menu>
+                @if (playlistStore.playlists().length === 0) {
+                  <hlm-dropdown-menu-label>No playlists yet</hlm-dropdown-menu-label>
+                } @else {
+                  <hlm-dropdown-menu-label>Add to playlist</hlm-dropdown-menu-label>
+                  <hlm-dropdown-menu-separator />
+                  @for (playlist of playlistStore.playlists(); track playlist.id) {
+                    <button hlmDropdownMenuItem (click)="addToPlaylist(song, playlist.id!)">
+                      {{ playlist.name }}
+                    </button>
+                  }
+                }
+              </hlm-dropdown-menu>
+            </ng-template>
+          </ng-container>
         </div>
       }
     </section>

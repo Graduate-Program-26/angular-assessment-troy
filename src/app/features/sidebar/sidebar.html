@@ -1,27 +1,18 @@
 <div hlmSidebarWrapper>
   <hlm-sidebar>
     <div hlmSidebarHeader>
-      <span>Deezer</span>
+      <span>Deezerfy Music</span>
     </div>
 
     <div hlmSidebarContent>
       <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Discover</div>
         <div hlmSidebarGroupContent>
           <ul hlmSidebarMenu>
             <li hlmSidebarMenuItem>
               <a hlmSidebarMenuButton [routerLink]="['/']">Search</a>
             </li>
-          </ul>
-        </div>
-      </div>
-
-      <div hlmSidebarGroup>
-        <div hlmSidebarGroupLabel>Playlists</div>
-        <div hlmSidebarGroupContent>
-          <ul hlmSidebarMenu>
             <li hlmSidebarMenuItem>
-              <a hlmSidebarMenuButton>Late night drive</a>
+              <a hlmSidebarMenuButton [routerLink]="['/playlist']">Playlists</a>
             </li>
           </ul>
         </div>
