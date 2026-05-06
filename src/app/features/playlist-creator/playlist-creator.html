@@ -1,1 +1,43 @@
-<p>playlist-creator works!</p>
+<div class="mx-auto flex max-w-xl flex-col gap-6 p-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">Your Playlists</h1>
+    <p class="mt-1 text-sm text-muted-foreground">Create and manage your playlists</p>
+  </div>
+
+  <hlm-separator />
+
+  <div class="flex items-center gap-2">
+    <input
+      #nameInput
+      hlmInput
+      class="flex-1"
+      type="text"
+      placeholder="New playlist name..."
+      (keydown.enter)="create(nameInput)"
+    />
+    <button hlmBtn (click)="create(nameInput)">Create</button>
+  </div>
+
+  @if (store.playlists().length === 0) {
+    <div class="flex flex-col items-center gap-2 py-12 text-muted-foreground">
+      <ng-icon name="lucideListMusic" class="text-3xl" />
+      <p class="text-sm">No playlists yet. Create one above.</p>
+    </div>
+  }
+
+  <ul class="flex flex-col gap-1.5">
+    @for (playlist of store.playlists(); track playlist.id) {
+      <li
+        role="button"
+        tabindex="0"
+        class="flex cursor-pointer items-center justify-between rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        (click)="navigate(playlist.id!)"
+        (keydown.enter)="navigate(playlist.id!)"
+        (keydown.space)="navigate(playlist.id!)"
+      >
+        <span>{{ playlist.name }}</span>
+        <ng-icon name="lucideChevronRight" class="text-muted-foreground" />
+      </li>
+    }
+  </ul>
+</div>
