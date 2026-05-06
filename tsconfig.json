@@ -26,7 +26,8 @@
       "@spartan-ng/helm/spinner": ["./libs/spartan-ui/spinner/src/index.ts"],
       "@spartan-ng/helm/avatar": ["./libs/spartan-ui/avatar/src/index.ts"],
       "@spartan-ng/helm/dropdown-menu": ["./libs/spartan-ui/dropdown-menu/src/index.ts"],
-      "@spartan-ng/helm/tabs": ["./libs/spartan-ui/tabs/src/index.ts"]
+      "@spartan-ng/helm/tabs": ["./libs/spartan-ui/tabs/src/index.ts"],
+      "@spartan-ng/helm/badge": ["./libs/spartan-ui/badge/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

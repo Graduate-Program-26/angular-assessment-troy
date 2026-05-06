@@ -58,16 +58,19 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "angular-assessment-troy:build:production"
-            },
-            "development": {
-              "buildTarget": "angular-assessment-troy:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
+    "options": {
+      "proxyConfig": "proxy.conf.json"
+    },
+    "configurations": {
+      "production": {
+        "buildTarget": "angular-assessment-troy:build:production"
+      },
+      "development": {
+        "buildTarget": "angular-assessment-troy:build:development"
+      }
+    },
+    "defaultConfiguration": "development"
+  },
         "test": {
           "builder": "@angular/build:unit-test"
         },
