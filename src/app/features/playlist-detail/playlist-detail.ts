@@ -1,22 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PlaylistStore } from '../../store/playlist.store';
-
+import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
+import { HlmSeparator } from '@spartan-ng/helm/separator';
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [],
-  template: `
-    @let activePlaylist = store.activePlaylist();
-    @if (activePlaylist) {
-      <h2>{{ activePlaylist.name }}</h2>
-      <ul>
-        @for (song of store.activeSongs(); track song.id) {
-          <li>{{ song.title }} - {{ song.artist }}</li>
-        }
-      </ul>
-    }
-  `,
+  imports: [HlmCardImports, HlmSeparator, HlmBadgeImports],
+  templateUrl: `playlist-detail.html`,
 })
 export class PlaylistDetail implements OnInit {
   store = inject(PlaylistStore);

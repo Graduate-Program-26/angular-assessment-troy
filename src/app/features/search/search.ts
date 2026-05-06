@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSearch } from '@ng-icons/lucide';
@@ -27,6 +27,11 @@ interface SearchResults {
 export class Search {
   loading = signal(false);
   results = signal<SearchResults>({ artists: [], albums: [], songs: [] });
+
+  hasResults = computed(() => {
+    const r = this.results();
+    return r.artists.length > 0 || r.albums.length > 0 || r.songs.length > 0;
+  });
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 

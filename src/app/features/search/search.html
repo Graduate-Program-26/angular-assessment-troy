@@ -18,7 +18,7 @@
     <hlm-spinner class="mt-6" />
   }
 
-  @if (!loading()) {
+  @if (!loading() && hasResults()) {
     <hlm-tabs class="w-1/2 mt-4" tab="artists">
       <hlm-tabs-list class="w-full">
         <button hlmTabsTrigger="artists">Artists</button>
