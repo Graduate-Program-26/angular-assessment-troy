@@ -18,42 +18,136 @@
     <hlm-spinner class="mt-6" />
   }
 
+  @if (error()) {
+    <p class="mt-4 text-sm">{{ error() }}</p>
+  }
+
   @if (!loading() && hasResults()) {
     <hlm-tabs class="w-1/2 mt-4" tab="artists">
       <hlm-tabs-list class="w-full">
-        <button hlmTabsTrigger="artists">Artists</button>
-        <button hlmTabsTrigger="albums">Albums</button>
-        <button hlmTabsTrigger="songs">Songs</button>
+        <button hlmTabsTrigger="artists">Artists ({{ results().artists.length }})</button>
+        <button hlmTabsTrigger="albums">Albums ({{ results().albums.length }})</button>
+        <button hlmTabsTrigger="songs">Songs ({{ results().songs.length }})</button>
       </hlm-tabs-list>
 
       <div hlmTabsContent="artists" class="flex flex-col gap-3 mt-3">
-        @for (result of results().artists; track result.title) {
-          <section hlmCard>
-            <div hlmCardHeader>
-              <h3 hlmCardTitle>{{ result.title }}</h3>
-              <p hlmCardDescription>{{ result.description }}</p>
+        @for (artist of results().artists; track artist.id) {
+          <section
+            hlmCard
+            class="cursor-pointer transition-colors hover:bg-accent"
+            tabindex="0"
+            (click)="navigateToArtist(artist.id)"
+            (keydown.enter)="navigateToArtist(artist.id)"
+            (keydown.space)="navigateToArtist(artist.id)"
+          >
+            <div hlmCardHeader class="flex flex-row items-center gap-4 py-3">
+              @if (artist.picture_medium) {
+                <img
+                  [src]="artist.picture_medium"
+                  [alt]="artist.name"
+                  class="w-12 h-12 rounded-full object-cover shrink-0"
+                />
+              } @else {
+                <div
+                  class="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0"
+                >
+                  <ng-icon name="lucideUser" size="20" class="text-muted-foreground" />
+                </div>
+              }
+              <div>
+                <h3 hlmCardTitle>{{ artist.name }}</h3>
+                <p hlmCardDescription>
+                  {{ artist.nb_fan | number }} fans · {{ artist.nb_album }} albums
+                </p>
+              </div>
             </div>
           </section>
         }
       </div>
 
       <div hlmTabsContent="albums" class="flex flex-col gap-3 mt-3">
-        @for (result of results().albums; track result.title) {
-          <section hlmCard>
-            <div hlmCardHeader>
-              <h3 hlmCardTitle>{{ result.title }}</h3>
-              <p hlmCardDescription>{{ result.description }}</p>
+        @for (album of results().albums; track album.id) {
+          <section
+            hlmCard
+            class="cursor-pointer transition-colors hover:bg-accent"
+            tabindex="0"
+            (click)="navigateToAlbum(album.id)"
+            (keydown.enter)="navigateToAlbum(album.id)"
+            (keydown.space)="navigateToAlbum(album.id)"
+          >
+            <div hlmCardHeader class="flex flex-row items-center gap-4 py-3">
+              @if (album.cover_medium) {
+                <img
+                  [src]="album.cover_medium"
+                  [alt]="album.title"
+                  class="w-12 h-12 rounded object-cover shrink-0"
+                />
+              } @else {
+                <div class="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0">
+                  <ng-icon name="lucideDisc" size="20" class="text-muted-foreground" />
+                </div>
+              }
+              <div>
+                <h3 hlmCardTitle>{{ album.title }}</h3>
+                <p hlmCardDescription>
+                  {{ album.artist.name }} · {{ album.release_date | date: 'yyyy' }}
+                </p>
+              </div>
             </div>
           </section>
         }
       </div>
 
       <div hlmTabsContent="songs" class="flex flex-col gap-3 mt-3">
-        @for (result of results().songs; track result.title) {
-          <section hlmCard>
-            <div hlmCardHeader>
-              <h3 hlmCardTitle>{{ result.title }}</h3>
-              <p hlmCardDescription>{{ result.description }}</p>
+        @for (track of results().songs; track track.id) {
+          <section
+            hlmCard
+            class="cursor-pointer transition-colors hover:bg-accent"
+            tabindex="0"
+            (click)="player.toggle(track, results().songs)"
+            (keydown.enter)="player.toggle(track, results().songs)"
+            (keydown.space)="player.toggle(track, results().songs)"
+          >
+            <div hlmCardHeader class="flex flex-row items-center gap-4 py-3">
+              <div class="relative shrink-0">
+                @if (track.album.cover_medium) {
+                  <img
+                    [src]="track.album.cover_medium"
+                    [alt]="track.album.title"
+                    class="w-12 h-12 rounded object-cover"
+                  />
+                } @else {
+                  <div class="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                    <ng-icon name="lucideMusic" size="20" class="text-muted-foreground" />
+                  </div>
+                }
+                @if (player.isCurrentTrack(track.id)) {
+                  <div
+                    class="absolute inset-0 flex items-center justify-center rounded bg-black/50"
+                  >
+                    <ng-icon
+                      [name]="player.isPlaying() ? 'lucidePause' : 'lucidePlay'"
+                      size="18"
+                      class="text-white"
+                    />
+                  </div>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3
+                  hlmCardTitle
+                  class="truncate"
+                  [class.text-primary]="player.isCurrentTrack(track.id)"
+                >
+                  {{ track.title }}
+                </h3>
+                <p hlmCardDescription>
+                  {{ track.artist.name }} · {{ formatDuration(track.duration) }}
+                </p>
+              </div>
+              @if (!track.preview) {
+                <span class="text-xs text-muted-foreground shrink-0">No preview</span>
+              }
             </div>
           </section>
         }
