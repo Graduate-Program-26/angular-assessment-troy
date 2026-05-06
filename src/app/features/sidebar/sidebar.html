@@ -1,0 +1,26 @@
+<div hlmSidebarWrapper>
+  <hlm-sidebar>
+    <div hlmSidebarHeader>
+      <span>Deezerfy Music</span>
+    </div>
+
+    <div hlmSidebarContent>
+      <div hlmSidebarGroup>
+        <div hlmSidebarGroupContent>
+          <ul hlmSidebarMenu>
+            <li hlmSidebarMenuItem>
+              <a hlmSidebarMenuButton [routerLink]="['/']">Search</a>
+            </li>
+            <li hlmSidebarMenuItem>
+              <a hlmSidebarMenuButton [routerLink]="['/playlist']">Playlists</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div hlmSidebarFooter></div>
+  </hlm-sidebar>
+
+  <ng-content />
+</div>

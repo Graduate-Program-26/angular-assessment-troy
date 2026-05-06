@@ -1,0 +1,63 @@
+<div class="searchContainer">
+  <div class="relative w-1/2 mt-4">
+    <ng-icon
+      name="lucideSearch"
+      class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+      size="16"
+    />
+    <input
+      hlmInput
+      class="pl-9 w-full"
+      type="search"
+      placeholder="Search..."
+      (input)="onSearch($event)"
+    />
+  </div>
+
+  @if (loading()) {
+    <hlm-spinner class="mt-6" />
+  }
+
+  @if (!loading()) {
+    <hlm-tabs class="w-1/2 mt-4" tab="artists">
+      <hlm-tabs-list class="w-full">
+        <button hlmTabsTrigger="artists">Artists</button>
+        <button hlmTabsTrigger="albums">Albums</button>
+        <button hlmTabsTrigger="songs">Songs</button>
+      </hlm-tabs-list>
+
+      <div hlmTabsContent="artists" class="flex flex-col gap-3 mt-3">
+        @for (result of results().artists; track result.title) {
+          <section hlmCard>
+            <div hlmCardHeader>
+              <h3 hlmCardTitle>{{ result.title }}</h3>
+              <p hlmCardDescription>{{ result.description }}</p>
+            </div>
+          </section>
+        }
+      </div>
+
+      <div hlmTabsContent="albums" class="flex flex-col gap-3 mt-3">
+        @for (result of results().albums; track result.title) {
+          <section hlmCard>
+            <div hlmCardHeader>
+              <h3 hlmCardTitle>{{ result.title }}</h3>
+              <p hlmCardDescription>{{ result.description }}</p>
+            </div>
+          </section>
+        }
+      </div>
+
+      <div hlmTabsContent="songs" class="flex flex-col gap-3 mt-3">
+        @for (result of results().songs; track result.title) {
+          <section hlmCard>
+            <div hlmCardHeader>
+              <h3 hlmCardTitle>{{ result.title }}</h3>
+              <p hlmCardDescription>{{ result.description }}</p>
+            </div>
+          </section>
+        }
+      </div>
+    </hlm-tabs>
+  }
+</div>
