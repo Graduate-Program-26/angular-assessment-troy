@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucidePlay,
@@ -13,6 +13,7 @@ import { PlayerStore } from '../../store/player.store';
 
 @Component({
   selector: 'app-player',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgIcon, HlmButtonImports],
   providers: [
     provideIcons({
