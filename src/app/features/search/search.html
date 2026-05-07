@@ -9,8 +9,9 @@
       hlmInput
       class="pl-9 w-full"
       type="search"
-      placeholder="Search..."
-      (input)="onSearch($event)"
+      placeholder="Search for artists, albums or tracks"
+      aria-label="Search for artists, albums or tracks"
+      [formControl]="searchControl"
     />
   </div>
 
