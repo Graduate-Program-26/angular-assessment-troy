@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  deezerApiBase: 'https://placeholder.onrender.com/deezer-api',
+  deezerApiBase: 'https://deezerfy.onrender.com/deezer-api',
 };
