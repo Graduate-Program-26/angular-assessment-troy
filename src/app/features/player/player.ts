@@ -38,4 +38,8 @@ export class Player {
   onSeek(event: Event): void {
     this.store.seek(+(event.target as HTMLInputElement).value);
   }
+
+  onVolumeChange(event: Event): void {
+    this.store.setVolume(+(event.target as HTMLInputElement).value);
+  }
 }

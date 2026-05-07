@@ -19,14 +19,42 @@
         } @else {
           <ul class="divide-y divide-border">
             @for (song of songs; track song.id; let i = $index) {
-              <li class="flex items-center gap-2 py-3">
-                <span class="text-muted-foreground text-xs w-5 text-right shrink-0">{{
-                  i + 1
-                }}</span>
-                <div class="flex flex-col min-w-0">
-                  <span class="text-sm font-medium truncate">{{ song.title }}</span>
+              <li
+                class="flex items-center gap-3 py-3 cursor-pointer hover:bg-accent rounded-md px-2 transition-colors group"
+                tabindex="0"
+                (click)="playSong(i)"
+                (keydown.enter)="playSong(i)"
+                (keydown.space)="playSong(i)"
+              >
+                <div class="w-5 text-right shrink-0 relative">
+                  <span
+                    class="text-muted-foreground text-xs group-hover:hidden"
+                    [class.hidden]="isSongPlaying(song.id)"
+                  >
+                    {{ i + 1 }}
+                  </span>
+                  <ng-icon
+                    [name]="isSongPlaying(song.id) ? 'lucidePause' : 'lucidePlay'"
+                    size="14"
+                    class="hidden group-hover:block text-foreground"
+                    [class.block]="isSongPlaying(song.id)"
+                    [class.hidden]="!isSongPlaying(song.id)"
+                  />
+                </div>
+
+                <div class="flex flex-col min-w-0 flex-1">
+                  <span
+                    class="text-sm font-medium truncate"
+                    [class.text-primary]="playerStore.isCurrentTrack(song.id)"
+                  >
+                    {{ song.title }}
+                  </span>
                   <span class="text-xs text-muted-foreground truncate">{{ song.artist }}</span>
                 </div>
+
+                @if (!song.preview) {
+                  <span class="text-xs text-muted-foreground shrink-0">No preview</span>
+                }
               </li>
             }
           </ul>
