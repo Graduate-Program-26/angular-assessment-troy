@@ -26,6 +26,32 @@ Navigate to `http://localhost:4200`
 - Tailwind CSS v4
 - idb: IndexedDB wrapper for playlist storage
 
+## Screenshots
+
+Search Page
+![](./readme_images/search.png)
+
+Artist Search
+![](./readme_images/artist_search.png)
+
+Album Search
+![](./readme_images/album_search.png)
+
+Song Search
+![](./readme_images/song_search.png)
+
+Artist Page
+![](readme_images/artist_page.png)
+
+Album Page
+![](readme_images/album_page.png)
+
+Playlist Creator
+![](readme_images/playlist_creator.png)
+
+Playlist Details
+![](readme_images/playlist_details.png)
+
 ## Known limitations
 
 - No artist biography text
