@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlay, lucidePause, lucideClock, lucideDisc } from '@ng-icons/lucide';
@@ -42,6 +49,13 @@ export class Album implements OnInit {
   readonly album = signal<DeezerAlbum | null>(null);
   readonly tracks = signal<DeezerTrack[]>([]);
 
+  readonly totalDuration = computed(() => {
+    const total = this.tracks().reduce((acc, track) => acc + track.duration, 0);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+  });
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.playlistStore.loadPlaylists();
@@ -70,13 +84,6 @@ export class Album implements OnInit {
     if (trackList.length) {
       this.playerStore.toggle(trackList[0], trackList);
     }
-  }
-
-  totalDuration(): string {
-    const total = this.tracks().reduce((acc, track) => acc + track.duration, 0);
-    const hours = Math.floor(total / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
   }
 
   onAddToPlaylist(event: { track: DeezerTrack; playlistId: number }): void {

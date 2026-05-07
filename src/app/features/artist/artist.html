@@ -31,6 +31,22 @@
       </div>
     </div>
 
+    <div
+      class="px-8 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground border-b border-border pb-6"
+    >
+      @if (artistGenres().length > 0) {
+        <div class="flex flex-wrap gap-2">
+          @for (genre of artistGenres(); track genre) {
+            <span
+              class="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-medium"
+            >
+              {{ genre }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
     <div class="px-8 mt-8">
       <h2 class="text-xl font-semibold mb-4">Top Tracks</h2>
       <div class="flex flex-col gap-1">

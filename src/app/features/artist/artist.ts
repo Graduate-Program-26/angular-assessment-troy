@@ -56,6 +56,20 @@ export class Artist implements OnInit {
   readonly hasMoreTracks = computed(() => this.topTracks().length > this.tracksLimit());
   readonly hasMoreAlbums = computed(() => this.albums().length > this.albumsLimit());
 
+  readonly artistGenres = computed(() => {
+    const seen = new Set<string>();
+    const genres: string[] = [];
+    for (const album of this.albums()) {
+      for (const genre of album.genres?.data ?? []) {
+        if (!seen.has(genre.name)) {
+          seen.add(genre.name);
+          genres.push(genre.name);
+        }
+      }
+    }
+    return genres;
+  });
+
   ngOnInit(): void {
     const artistId = Number(this.route.snapshot.paramMap.get('id'));
     this.playlistStore.loadPlaylists();

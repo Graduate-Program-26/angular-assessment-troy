@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlay, lucidePause } from '@ng-icons/lucide';
+import { lucidePlay, lucidePause, lucideTrash2 } from '@ng-icons/lucide';
 import { PlaylistStore } from '../../store/playlist.store';
 import { PlayerStore } from '../../store/player.store';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -23,7 +23,7 @@ import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
     NgIcon,
     FormatDurationPipe,
   ],
-  providers: [provideIcons({ lucidePlay, lucidePause })],
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideTrash2 })],
   templateUrl: './playlist-detail.html',
 })
 export class PlaylistDetail implements OnInit {
@@ -31,26 +31,20 @@ export class PlaylistDetail implements OnInit {
   readonly playerStore = inject(PlayerStore);
   readonly route = inject(ActivatedRoute);
 
-  ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.store.loadPlaylists();
-    this.store.selectPlaylist(id);
-  }
-
-  asQueue(): DeezerTrack[] {
-    return this.store
+  readonly queue = computed<DeezerTrack[]>(() =>
+    this.store
       .activeSongs()
-      .filter((s) => !!s.preview)
-      .map((s) => ({
-        id: s.id ?? 0,
-        title: s.title,
-        duration: s.duration,
-        preview: s.preview ?? '',
+      .filter((song) => !!song.preview)
+      .map((song) => ({
+        id: song.id ?? 0,
+        title: song.title,
+        duration: song.duration,
+        preview: song.preview ?? '',
         rank: 0,
         link: '',
         artist: {
           id: 0,
-          name: s.artist,
+          name: song.artist,
           picture: '',
           picture_medium: '',
           nb_album: 0,
@@ -67,7 +61,7 @@ export class PlaylistDetail implements OnInit {
           link: '',
           artist: {
             id: 0,
-            name: s.artist,
+            name: song.artist,
             picture: '',
             picture_medium: '',
             nb_album: 0,
@@ -75,13 +69,26 @@ export class PlaylistDetail implements OnInit {
             link: '',
           },
         },
-      }));
+      })),
+  );
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.store.loadPlaylists();
+    this.store.selectPlaylist(id);
   }
 
   playSong(index: number): void {
-    const queue = this.asQueue();
-    if (!queue[index]) return;
-    this.playerStore.toggle(queue[index], queue);
+    const trackQueue = this.queue();
+    if (!trackQueue[index]) return;
+    this.playerStore.toggle(trackQueue[index], trackQueue);
+  }
+
+  removeSong(event: Event, songId: number | undefined): void {
+    event.stopPropagation();
+    const playlistId = this.store.activePlaylistId();
+    if (songId === undefined || playlistId === null) return;
+    this.store.removeSong(songId, playlistId);
   }
 
   isSongPlaying(songId: number | undefined): boolean {

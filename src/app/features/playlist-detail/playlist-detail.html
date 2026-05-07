@@ -23,20 +23,20 @@
           <p class="text-muted-foreground text-sm py-6 text-center">No songs in this playlist.</p>
         } @else {
           <ul class="divide-y divide-border">
-            @for (song of songs; track song.id; let i = $index) {
+            @for (song of songs; track song.id; let songIndex = $index) {
               <li
                 class="flex items-center gap-3 py-3 cursor-pointer hover:bg-accent rounded-md px-2 transition-colors group"
                 tabindex="0"
-                (click)="playSong(i)"
-                (keydown.enter)="playSong(i)"
-                (keydown.space)="playSong(i)"
+                (click)="playSong(songIndex)"
+                (keydown.enter)="playSong(songIndex)"
+                (keydown.space)="playSong(songIndex)"
               >
                 <div class="w-5 text-right shrink-0 relative">
                   <span
                     class="text-muted-foreground text-xs group-hover:hidden"
                     [class.hidden]="isSongPlaying(song.id)"
                   >
-                    {{ i + 1 }}
+                    {{ songIndex + 1 }}
                   </span>
                   <ng-icon
                     [name]="isSongPlaying(song.id) ? 'lucidePause' : 'lucidePlay'"
@@ -60,6 +60,19 @@
                 @if (!song.preview) {
                   <span class="text-xs text-muted-foreground shrink-0">No preview</span>
                 }
+
+                <button
+                  hlmBtn
+                  variant="ghost"
+                  size="icon"
+                  class="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-colors"
+                  [attr.aria-label]="'Remove ' + song.title + ' from playlist'"
+                  (click)="removeSong($event, song.id)"
+                  (keydown.enter)="removeSong($event, song.id)"
+                  (keydown.space)="removeSong($event, song.id)"
+                >
+                  <ng-icon name="lucideTrash2" size="14" aria-hidden="true" />
+                </button>
               </li>
             }
           </ul>
