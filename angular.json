@@ -34,6 +34,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -58,19 +64,19 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-    "options": {
-      "proxyConfig": "proxy.conf.json"
-    },
-    "configurations": {
-      "production": {
-        "buildTarget": "angular-assessment-troy:build:production"
-      },
-      "development": {
-        "buildTarget": "angular-assessment-troy:build:development"
-      }
-    },
-    "defaultConfiguration": "development"
-  },
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-assessment-troy:build:production"
+            },
+            "development": {
+              "buildTarget": "angular-assessment-troy:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
         "test": {
           "builder": "@angular/build:unit-test"
         },
