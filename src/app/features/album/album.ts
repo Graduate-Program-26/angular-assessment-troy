@@ -1,185 +1,100 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlay, lucideClock, lucidePause, lucideListPlus } from '@ng-icons/lucide';
+import { lucidePlay, lucidePause, lucideClock, lucideListPlus, lucideDisc } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
-import { PlaylistStore } from '../../store/playlist.store';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
-
-export interface AlbumTrack {
-  position: number;
-  title: string;
-  duration: string;
-  explicit: boolean;
-}
-
-export interface AlbumData {
-  title: string;
-  artistName: string;
-  artistImageUrl: string;
-  coverUrl: string;
-  year: number;
-  type: 'Album' | 'EP' | 'Single';
-  genre: string;
-  totalDuration: string;
-  label: string;
-}
+import { SlicePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { DeezerService } from '../../services/deezer.service';
+import { DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
+import { PlayerStore } from '../../store/player.store';
+import { PlaylistStore } from '../../store/playlist.store';
 
 @Component({
   selector: 'app-album',
   imports: [
-    HlmAvatarImports,
     HlmCardImports,
     HlmButtonImports,
     HlmSeparatorImports,
+    HlmSpinnerImports,
     HlmDropdownMenuImports,
     NgIcon,
+    SlicePipe,
   ],
-  providers: [
-    provideIcons({
-      lucidePlay,
-      lucideClock,
-      lucidePause,
-      lucideListPlus,
-    }),
-  ],
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideClock, lucideListPlus, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './album.html',
   styleUrl: './album.scss',
 })
 export class Album implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly deezer = inject(DeezerService);
+  readonly playerStore = inject(PlayerStore);
   readonly playlistStore = inject(PlaylistStore);
+
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly album = signal<DeezerAlbum | null>(null);
+  readonly tracks = signal<DeezerTrack[]>([]);
   readonly hoveredTrack = signal<number | null>(null);
-  readonly playingTrack = signal<number | null>(null);
-  readonly isLiked = signal(false);
-
-  readonly album = signal<AlbumData>({
-    title: 'Tempor Incididunt',
-    artistName: 'Lorem Ipsum',
-    artistImageUrl: 'https://i.pravatar.cc/300?img=47',
-    coverUrl: 'https://picsum.photos/seed/album1/600/600',
-    year: 2024,
-    type: 'Album',
-    genre: 'Dolor Sit',
-    totalDuration: '47 min 36 sec',
-    label: 'Amet Records',
-  });
-
-  readonly tracks = signal<AlbumTrack[]>([
-    {
-      position: 1,
-      title: 'Sed Do Eiusmod',
-      duration: '3:29',
-
-      explicit: false,
-    },
-    {
-      position: 2,
-      title: 'Ut Labore Dolore',
-      duration: '5:01',
-
-      explicit: true,
-    },
-    {
-      position: 3,
-      title: 'Ullamco Laboris Nisi',
-      duration: '3:18',
-      explicit: false,
-    },
-    {
-      position: 4,
-      title: 'Commodo Consequat Duis',
-      duration: '3:02',
-      explicit: false,
-    },
-    {
-      position: 5,
-      title: 'Aute Irure Dolor',
-      duration: '6:08',
-      explicit: true,
-    },
-    {
-      position: 6,
-      title: 'Reprehenderit Voluptate',
-      duration: '4:21',
-      explicit: false,
-    },
-    {
-      position: 7,
-      title: 'Velit Esse Cillum',
-      duration: '3:55',
-      explicit: false,
-    },
-    {
-      position: 8,
-      title: 'Fugiat Nulla Pariatur',
-      duration: '4:09',
-      explicit: true,
-    },
-    {
-      position: 9,
-      title: 'Excepteur Sint Occaecat',
-      duration: '5:44',
-      explicit: false,
-    },
-    {
-      position: 10,
-      title: 'Cupidatat Non Proident',
-      duration: '4:29',
-      explicit: false,
-    },
-  ]);
-
-  readonly moreByArtist = signal([
-    {
-      title: 'Dolor Sit Amet',
-      year: 2022,
-      cover: 'https://picsum.photos/seed/rel1/300/300',
-      type: 'Album',
-    },
-    {
-      title: 'Magna Aliqua EP',
-      year: 2023,
-      cover: 'https://picsum.photos/seed/rel2/300/300',
-      type: 'EP',
-    },
-    {
-      title: 'Aliquip Ex Ea',
-      year: 2021,
-      cover: 'https://picsum.photos/seed/rel3/300/300',
-      type: 'Album',
-    },
-    {
-      title: 'Lorem Ipsum',
-      year: 2020,
-      cover: 'https://picsum.photos/seed/rel4/300/300',
-      type: 'Single',
-    },
-  ]);
 
   ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
     this.playlistStore.loadPlaylists();
+    forkJoin({
+      album: this.deezer.getAlbum(id),
+      tracks: this.deezer.getAlbumTracks(id),
+    }).subscribe({
+      next: ({ album, tracks }) => {
+        this.album.set(album);
+        this.tracks.set(tracks.data.map((track) => ({ ...track, album })));
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load album.');
+        this.loading.set(false);
+      },
+    });
   }
 
-  togglePlay(position: number): void {
-    this.playingTrack.update((current) => (current === position ? null : position));
+  navigateToArtist(id: number): void {
+    this.router.navigate(['/artist', id]);
   }
 
-  toggleLike(): void {
-    this.isLiked.update((v) => !v);
+  playFromStart(): void {
+    const trackList = this.tracks();
+    if (trackList.length) {
+      this.playerStore.toggle(trackList[0], trackList);
+    }
   }
 
-  addToPlaylist(track: AlbumTrack, playlistId: number): void {
-    const [minutes, seconds] = track.duration.split(':').map(Number);
-    const order = this.playlistStore.activeSongs().length;
+  formatDuration(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  totalDuration(): string {
+    const total = this.tracks().reduce((acc, track) => acc + track.duration, 0);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+  }
+
+  addToPlaylist(track: DeezerTrack, playlistId: number | undefined): void {
+    if (playlistId === undefined) return;
     this.playlistStore.addSong({
       title: track.title,
-      artist: this.album().artistName,
+      artist: track.artist.name,
       playlistId,
-      order,
-      duration: minutes * 60 + seconds,
+      order: this.playlistStore.activeSongs().length,
+      duration: track.duration,
+      preview: track.preview,
     });
   }
 }
