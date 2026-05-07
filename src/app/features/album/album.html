@@ -45,9 +45,18 @@
         </div>
         <p class="text-xs text-muted-foreground mt-2">
           {{ albumData.release_date | slice: 0 : 4 }}
-          | {{ albumData.nb_tracks }} tracks | {{ totalDuration() }}
+          · {{ albumData.nb_tracks }} tracks · {{ totalDuration() }}
           @if (albumData.label) {
-            |{{ albumData.label }}
+            · {{ albumData.label }}
+          }
+          @if (albumData.genres?.data?.length) {
+            ·
+            @for (genre of albumData.genres!.data; track genre.id; let last = $last) {
+              {{ genre.name }}
+              @if (!last) {
+                ,
+              }
+            }
           }
         </p>
       </div>

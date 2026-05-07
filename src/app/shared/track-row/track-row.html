@@ -18,8 +18,8 @@
         size="14"
         aria-hidden="true"
       />
-    } @else if (index() !== null) {
-      {{ index()! + 1 }}
+    } @else {
+      {{ track().track_position ?? (index() !== null ? index()! + 1 : '') }}
     }
   </div>
 

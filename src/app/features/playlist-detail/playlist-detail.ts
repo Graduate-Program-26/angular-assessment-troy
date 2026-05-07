@@ -9,11 +9,19 @@ import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { DeezerTrack } from '../../services/deezer.models';
+import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
-  imports: [HlmCardImports, HlmSeparator, HlmBadgeImports, HlmButtonImports, NgIcon],
+  imports: [
+    HlmCardImports,
+    HlmSeparator,
+    HlmBadgeImports,
+    HlmButtonImports,
+    NgIcon,
+    FormatDurationPipe,
+  ],
   providers: [provideIcons({ lucidePlay, lucidePause })],
   templateUrl: './playlist-detail.html',
 })

@@ -19,9 +19,11 @@ const initialState: PlaylistState = {
 export const PlaylistStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withComputed(({ playlists, activePlaylistId }) => ({
+  withComputed(({ playlists, activePlaylistId, activeSongs }) => ({
     activePlaylist: computed(() => playlists().find((p) => p.id === activePlaylistId()) ?? null),
+    totalDuration: computed(() => activeSongs().reduce((acc, song) => acc + song.duration, 0)),
   })),
+
   withMethods((store) => ({
     async loadPlaylists(): Promise<void> {
       patchState(store, { loading: true });
@@ -95,6 +97,15 @@ export const PlaylistStore = signalStore(
       await tx.done;
       const songs = await db.getAllFromIndex('songs', 'by-playlist', playlistId);
       patchState(store, { activeSongs: songs.sort((a, b) => a.order - b.order) });
+    },
+
+    async renamePlaylist(id: number, name: string): Promise<void> {
+      const db = await getDB();
+      const playlist = await db.get('playlists', id);
+      if (!playlist) return;
+      await db.put('playlists', { ...playlist, name });
+      const playlists = await db.getAll('playlists');
+      patchState(store, { playlists });
     },
   })),
 );
