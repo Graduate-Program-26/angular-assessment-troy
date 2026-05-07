@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideChevronRight,
@@ -18,7 +19,7 @@ import { PlaylistStore } from '../../store/playlist.store';
   selector: 'app-playlists',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmButtonImports, HlmInputImports, HlmSeparatorImports, NgIcon],
+  imports: [HlmButtonImports, HlmInputImports, HlmSeparatorImports, NgIcon, ReactiveFormsModule],
   providers: [
     provideIcons({
       lucideChevronRight,
@@ -35,6 +36,10 @@ export class PlaylistsComponent implements OnInit {
   readonly store = inject(PlaylistStore);
   readonly router = inject(Router);
 
+  readonly createForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
+
   readonly editingId = signal<number | null>(null);
   readonly editingName = signal('');
 
@@ -42,11 +47,10 @@ export class PlaylistsComponent implements OnInit {
     this.store.loadPlaylists();
   }
 
-  create(input: HTMLInputElement): void {
-    const name = input.value.trim();
-    if (!name) return;
-    this.store.createPlaylist(name);
-    input.value = '';
+  create(): void {
+    if (this.createForm.invalid) return;
+    this.store.createPlaylist(this.createForm.controls.name.value);
+    this.createForm.reset();
   }
 
   navigate(id: number): void {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePlay, lucidePause } from '@ng-icons/lucide';
@@ -14,6 +14,7 @@ import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 @Component({
   selector: 'app-playlist-detail',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HlmCardImports,
     HlmSeparator,

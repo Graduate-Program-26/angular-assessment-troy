@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 import { DeezerTrack } from '../services/deezer.models';
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +29,15 @@ export class PlayerStore {
       this.duration.set(this.audioElement.duration),
     );
     this.audioElement.addEventListener('ended', () => this.next());
+
+    effect(() => {
+      const track = this.currentTrack();
+      if (track) {
+        document.title = `${track.title} — ${track.artist.name}`;
+      } else {
+        document.title = 'Deezerfy Music';
+      }
+    });
   }
 
   toggle(track: DeezerTrack, queue: DeezerTrack[] = []): void {
