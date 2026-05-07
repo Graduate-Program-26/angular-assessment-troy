@@ -3,6 +3,10 @@
 
 @if (activePlaylist) {
   <div class="p-6 max-w-2xl mx-auto">
+    <div class="mb-4">
+      <app-breadcrumb [items]="breadcrumbs()" />
+    </div>
+
     <section hlmCard>
       <div hlmCardHeader>
         <div class="flex items-center justify-between">

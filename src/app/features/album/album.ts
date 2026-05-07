@@ -20,6 +20,7 @@ import { DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
 import { PlaylistStore } from '../../store/playlist.store';
 import { TrackRowComponent } from '../../shared/track-row/track-row';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-album',
@@ -31,6 +32,7 @@ import { TrackRowComponent } from '../../shared/track-row/track-row';
     NgIcon,
     SlicePipe,
     TrackRowComponent,
+    BreadcrumbComponent,
   ],
   providers: [provideIcons({ lucidePlay, lucidePause, lucideClock, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +56,19 @@ export class Album implements OnInit {
     const hours = Math.floor(total / 3600);
     const minutes = Math.floor((total % 3600) / 60);
     return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+  });
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const albumData = this.album();
+    return [
+      { label: 'Search', route: ['/'] },
+      ...(albumData
+        ? [
+            { label: albumData.artist.name, route: ['/artist', String(albumData.artist.id)] },
+            { label: albumData.title },
+          ]
+        : []),
+    ];
   });
 
   ngOnInit(): void {

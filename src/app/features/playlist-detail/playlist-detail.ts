@@ -10,6 +10,7 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { DeezerTrack } from '../../services/deezer.models';
 import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-playlist-detail',
@@ -22,6 +23,7 @@ import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
     HlmButtonImports,
     NgIcon,
     FormatDurationPipe,
+    BreadcrumbComponent,
   ],
   providers: [provideIcons({ lucidePlay, lucidePause, lucideTrash2 })],
   templateUrl: './playlist-detail.html',
@@ -71,6 +73,14 @@ export class PlaylistDetail implements OnInit {
         },
       })),
   );
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const playlist = this.store.activePlaylist();
+    return [
+      { label: 'Playlists', route: ['/playlist'] },
+      ...(playlist ? [{ label: playlist.name }] : []),
+    ];
+  });
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

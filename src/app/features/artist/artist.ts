@@ -19,6 +19,7 @@ import { DeezerAlbum, DeezerArtist, DeezerTrack } from '../../services/deezer.mo
 import { PlayerStore } from '../../store/player.store';
 import { PlaylistStore } from '../../store/playlist.store';
 import { TrackRowComponent } from '../../shared/track-row/track-row';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-artist-page',
@@ -30,6 +31,7 @@ import { TrackRowComponent } from '../../shared/track-row/track-row';
     DecimalPipe,
     SlicePipe,
     TrackRowComponent,
+    BreadcrumbComponent,
   ],
   providers: [provideIcons({ lucideChevronDown, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +70,11 @@ export class Artist implements OnInit {
       }
     }
     return genres;
+  });
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const artistData = this.artist();
+    return [{ label: 'Search', route: ['/'] }, ...(artistData ? [{ label: artistData.name }] : [])];
   });
 
   ngOnInit(): void {

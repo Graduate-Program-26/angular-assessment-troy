@@ -10,10 +10,11 @@
 
 @if (!loading() && artist(); as artistData) {
   <div class="pb-32">
-    <div
-      class="relative h-64 bg-cover bg-center"
-      [style.backgroundImage]="'url(' + artistData.picture_xl + ')'"
-    >
+    <div class="px-8 pt-6">
+      <app-breadcrumb [items]="breadcrumbs()" />
+    </div>
+
+    <div class="relative h-48 bg-cover bg-center">
       <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
       <div class="absolute bottom-6 left-8 flex items-end gap-5">
         <img

@@ -1,0 +1,20 @@
+<nav aria-label="Breadcrumb">
+  <ol class="flex items-center gap-1.5 text-sm text-muted-foreground flex-wrap">
+    @for (item of items(); track item.label; let last = $last) {
+      <li class="flex items-center gap-1.5">
+        @if (!last && item.route) {
+          <a [routerLink]="item.route" class="hover:text-foreground transition-colors">
+            {{ item.label }}
+          </a>
+        } @else {
+          <span [class.text-foreground]="last" [class.font-medium]="last">
+            {{ item.label }}
+          </span>
+        }
+        @if (!last) {
+          <span aria-hidden="true">/</span>
+        }
+      </li>
+    }
+  </ol>
+</nav>
