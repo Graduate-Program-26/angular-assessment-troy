@@ -28,7 +28,19 @@
       </div>
     </div>
 
-    <div hlmSidebarFooter></div>
+    <div hlmSidebarFooter class="p-2">
+      <button
+        hlmBtn
+        variant="ghost"
+        size="sm"
+        class="w-full justify-start gap-2"
+        [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        (click)="theme.toggle()"
+      >
+        <ng-icon hlm [name]="theme.isDark() ? 'lucideSun' : 'lucideMoon'" size="sm" />
+        {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+      </button>
+    </div>
   </hlm-sidebar>
 
   <ng-content />
