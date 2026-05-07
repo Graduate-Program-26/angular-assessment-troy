@@ -7,6 +7,7 @@ export interface Song {
   artist: string;
   duration: number;
   order: number;
+  preview?: string;
 }
 
 export interface Playlist {

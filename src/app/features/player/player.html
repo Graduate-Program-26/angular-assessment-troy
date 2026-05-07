@@ -63,5 +63,14 @@
         </span>
       </div>
     </div>
+    <input
+      type="range"
+      class="h-1 cursor-pointer accent-primary"
+      [min]="0"
+      [max]="1"
+      [step]="0.02"
+      [value]="store.volume()"
+      (input)="onVolumeChange($event)"
+    />
   </div>
 }

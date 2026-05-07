@@ -3,7 +3,7 @@ import { DeezerTrack } from '../services/deezer.models';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerStore {
-  private readonly audio = new Audio();
+  private readonly audioElement = new Audio();
 
   readonly currentTrack = signal<DeezerTrack | null>(null);
   readonly isPlaying = signal(false);
@@ -15,16 +15,20 @@ export class PlayerStore {
   readonly currentIndex = computed(() => {
     const track = this.currentTrack();
     if (!track) return -1;
-    return this.queue().findIndex((t) => t.id === track.id);
+    return this.queue().findIndex((queuedTrack) => queuedTrack.id === track.id);
   });
 
   readonly hasPrevious = computed(() => this.currentIndex() > 0);
   readonly hasNext = computed(() => this.currentIndex() < this.queue().length - 1);
 
   constructor() {
-    this.audio.addEventListener('timeupdate', () => this.currentTime.set(this.audio.currentTime));
-    this.audio.addEventListener('loadedmetadata', () => this.duration.set(this.audio.duration));
-    this.audio.addEventListener('ended', () => this.next());
+    this.audioElement.addEventListener('timeupdate', () =>
+      this.currentTime.set(this.audioElement.currentTime),
+    );
+    this.audioElement.addEventListener('loadedmetadata', () =>
+      this.duration.set(this.audioElement.duration),
+    );
+    this.audioElement.addEventListener('ended', () => this.next());
   }
 
   toggle(track: DeezerTrack, queue: DeezerTrack[] = []): void {
@@ -42,66 +46,67 @@ export class PlayerStore {
   play(track: DeezerTrack, queue: DeezerTrack[] = []): void {
     if (queue.length > 0) {
       this.queue.set(queue);
-    } else if (!this.queue().find((t) => t.id === track.id)) {
-      this.queue.update((q) => [...q, track]);
+    } else if (!this.queue().find((queuedTrack) => queuedTrack.id === track.id)) {
+      this.queue.update((currentQueue) => [...currentQueue, track]);
     }
     this.currentTrack.set(track);
     if (!track.preview) return;
-    this.audio.src = track.preview;
-    this.audio.load();
-    this.audio
+    this.audioElement.src = track.preview;
+    this.audioElement.load();
+    this.audioElement
       .play()
       .then(() => this.isPlaying.set(true))
-      .catch((_err: unknown) => void 0);
+      .catch((_error: unknown) => void 0);
   }
 
   pause(): void {
-    this.audio.pause();
+    this.audioElement.pause();
     this.isPlaying.set(false);
   }
 
   resume(): void {
-    this.audio
+    this.audioElement
       .play()
       .then(() => this.isPlaying.set(true))
-      .catch((_err: unknown) => void 0);
+      .catch((_error: unknown) => void 0);
   }
 
   next(): void {
-    const q = this.queue();
-    const idx = this.currentIndex();
-    if (idx < q.length - 1) {
-      this.play(q[idx + 1]);
+    const currentQueue = this.queue();
+    const currentIndex = this.currentIndex();
+    if (currentIndex < currentQueue.length - 1) {
+      this.play(currentQueue[currentIndex + 1]);
     } else {
       this.isPlaying.set(false);
     }
   }
 
   previous(): void {
-    if (this.audio.currentTime > 3) {
-      this.audio.currentTime = 0;
+    const restartThresholdSeconds = 3;
+    if (this.audioElement.currentTime > restartThresholdSeconds) {
+      this.audioElement.currentTime = 0;
       this.currentTime.set(0);
       return;
     }
-    const q = this.queue();
-    const idx = this.currentIndex();
-    if (idx > 0) {
-      this.play(q[idx - 1]);
+    const currentQueue = this.queue();
+    const currentIndex = this.currentIndex();
+    if (currentIndex > 0) {
+      this.play(currentQueue[currentIndex - 1]);
     }
   }
 
-  seek(time: number): void {
-    this.audio.currentTime = time;
-    this.currentTime.set(time);
+  seek(targetTime: number): void {
+    this.audioElement.currentTime = targetTime;
+    this.currentTime.set(targetTime);
   }
 
-  setVolume(vol: number): void {
-    this.audio.volume = vol;
-    this.volume.set(vol);
+  setVolume(volumeLevel: number): void {
+    this.audioElement.volume = volumeLevel;
+    this.volume.set(volumeLevel);
   }
 
-  isCurrentTrack(id: number | undefined): boolean {
-    if (id === undefined) return false;
-    return this.currentTrack()?.id === id;
+  isCurrentTrack(trackId: number | undefined): boolean {
+    if (trackId === undefined) return false;
+    return this.currentTrack()?.id === trackId;
   }
 }
