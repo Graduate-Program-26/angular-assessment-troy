@@ -18,6 +18,7 @@ import { forkJoin } from 'rxjs';
 import { DeezerService } from '../../services/deezer.service';
 import { DeezerArtist, DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
+import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 
 interface SearchResults {
   artists: DeezerArtist[];
@@ -35,6 +36,7 @@ interface SearchResults {
     HlmTabsImports,
     DecimalPipe,
     DatePipe,
+    FormatDurationPipe,
   ],
   providers: [
     provideIcons({ lucideSearch, lucideMusic, lucideDisc, lucideUser, lucidePlay, lucidePause }),

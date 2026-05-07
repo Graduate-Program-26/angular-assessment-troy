@@ -1,0 +1,60 @@
+<div
+  class="flex items-center gap-4 px-3 py-2 rounded-md cursor-pointer hover:bg-accent transition-colors group"
+  [class.text-primary]="isActive()"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="track().title + ' by ' + track().artist.name"
+  [attr.aria-pressed]="isActive()"
+  (click)="onPlay()"
+  (keydown.enter)="onPlay()"
+  (keydown.space)="$event.preventDefault(); onPlay()"
+  (mouseenter)="hovered.set(true)"
+  (mouseleave)="hovered.set(false)"
+>
+  <div class="w-6 text-center text-sm text-muted-foreground shrink-0">
+    @if (hovered() || isActive()) {
+      <ng-icon
+        [name]="isActive() && isPlaying() ? 'lucidePause' : 'lucidePlay'"
+        size="14"
+        aria-hidden="true"
+      />
+    } @else if (index() !== null) {
+      {{ index()! + 1 }}
+    }
+  </div>
+
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-medium truncate">{{ track().title }}</p>
+    <p class="text-xs text-muted-foreground truncate">{{ track().artist.name }}</p>
+  </div>
+
+  @if (playlists().length > 0) {
+    <ng-template #playlistMenu>
+      <hlm-dropdown-menu>
+        <hlm-dropdown-menu-label>Add to playlist</hlm-dropdown-menu-label>
+        <hlm-dropdown-menu-separator />
+        @for (playlist of playlists(); track playlist.id) {
+          <button hlmDropdownMenuItem (click)="onAddToPlaylist(playlist.id!)">
+            {{ playlist.name }}
+          </button>
+        }
+      </hlm-dropdown-menu>
+    </ng-template>
+
+    <button
+      hlmBtn
+      variant="ghost"
+      size="icon"
+      class="opacity-0 group-hover:opacity-100 h-7 w-7 shrink-0"
+      aria-label="Add to playlist"
+      [hlmDropdownMenuTrigger]="playlistMenu"
+      (click)="$event.stopPropagation()"
+    >
+      <ng-icon name="lucideListPlus" size="14" aria-hidden="true" />
+    </button>
+  }
+
+  <span class="text-xs text-muted-foreground shrink-0 w-10 text-right">
+    {{ track().duration | formatDuration }}
+  </span>
+</div>

@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlay, lucidePause, lucideClock, lucideListPlus, lucideDisc } from '@ng-icons/lucide';
+import { lucidePlay, lucidePause, lucideClock, lucideDisc } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { SlicePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { DeezerService } from '../../services/deezer.service';
 import { DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
 import { PlaylistStore } from '../../store/playlist.store';
+import { TrackRowComponent } from '../../shared/track-row/track-row';
 
 @Component({
   selector: 'app-album',
@@ -21,11 +21,11 @@ import { PlaylistStore } from '../../store/playlist.store';
     HlmButtonImports,
     HlmSeparatorImports,
     HlmSpinnerImports,
-    HlmDropdownMenuImports,
     NgIcon,
     SlicePipe,
+    TrackRowComponent,
   ],
-  providers: [provideIcons({ lucidePlay, lucidePause, lucideClock, lucideListPlus, lucideDisc })],
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideClock, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './album.html',
   styleUrl: './album.scss',
@@ -41,7 +41,6 @@ export class Album implements OnInit {
   readonly error = signal<string | null>(null);
   readonly album = signal<DeezerAlbum | null>(null);
   readonly tracks = signal<DeezerTrack[]>([]);
-  readonly hoveredTrack = signal<number | null>(null);
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -73,12 +72,6 @@ export class Album implements OnInit {
     }
   }
 
-  formatDuration(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
-
   totalDuration(): string {
     const total = this.tracks().reduce((acc, track) => acc + track.duration, 0);
     const hours = Math.floor(total / 3600);
@@ -86,15 +79,14 @@ export class Album implements OnInit {
     return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
   }
 
-  addToPlaylist(track: DeezerTrack, playlistId: number | undefined): void {
-    if (playlistId === undefined) return;
+  onAddToPlaylist(event: { track: DeezerTrack; playlistId: number }): void {
     this.playlistStore.addSong({
-      title: track.title,
-      artist: track.artist.name,
-      playlistId,
+      title: event.track.title,
+      artist: event.track.artist.name,
+      playlistId: event.playlistId,
       order: this.playlistStore.activeSongs().length,
-      duration: track.duration,
-      preview: track.preview,
+      duration: event.track.duration,
+      preview: event.track.preview,
     });
   }
 }

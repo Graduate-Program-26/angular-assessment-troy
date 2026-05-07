@@ -25,7 +25,7 @@
           <p class="text-xs text-muted-foreground uppercase tracking-widest">Artist</p>
           <h1 class="text-4xl font-bold">{{ artistData.name }}</h1>
           <p class="text-sm text-muted-foreground mt-1">
-            {{ artistData.nb_fan | number }} fans · {{ artistData.nb_album }} albums
+            {{ artistData.nb_fan | number }} fans | {{ artistData.nb_album }} albums
           </p>
         </div>
       </div>
@@ -35,38 +35,13 @@
       <h2 class="text-xl font-semibold mb-4">Top Tracks</h2>
       <div class="flex flex-col gap-1">
         @for (track of visibleTracks(); track track.id; let index = $index) {
-          <div
-            class="flex items-center gap-4 px-3 py-2 rounded-md cursor-pointer hover:bg-accent transition-colors"
-            [class.text-primary]="playerStore.isCurrentTrack(track.id)"
-            tabindex="0"
-            (click)="playerStore.toggle(track, topTracks())"
-            (keydown.enter)="playerStore.toggle(track, topTracks())"
-            (keydown.space)="playerStore.toggle(track, topTracks())"
-            (mouseenter)="hoveredTrack.set(track.id)"
-            (mouseleave)="hoveredTrack.set(null)"
-          >
-            <div class="w-6 text-center text-sm text-muted-foreground shrink-0">
-              @if (hoveredTrack() === track.id || playerStore.isCurrentTrack(track.id)) {
-                <ng-icon
-                  [name]="
-                    playerStore.isCurrentTrack(track.id) && playerStore.isPlaying()
-                      ? 'lucidePause'
-                      : 'lucidePlay'
-                  "
-                  size="14"
-                />
-              } @else {
-                {{ index + 1 }}
-              }
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">{{ track.title }}</p>
-              <p class="text-xs text-muted-foreground truncate">{{ track.album.title }}</p>
-            </div>
-            <span class="text-xs text-muted-foreground shrink-0">
-              {{ formatDuration(track.duration) }}
-            </span>
-          </div>
+          <app-track-row
+            [track]="track"
+            [index]="index"
+            [isActive]="playerStore.isCurrentTrack(track.id)"
+            [isPlaying]="playerStore.isPlaying()"
+            (play)="playerStore.toggle($event, topTracks())"
+          />
         }
       </div>
 

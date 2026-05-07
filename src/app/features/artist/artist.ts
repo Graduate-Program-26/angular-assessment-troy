@@ -8,13 +8,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  lucidePlay,
-  lucidePause,
-  lucideChevronDown,
-  lucideClock,
-  lucideDisc,
-} from '@ng-icons/lucide';
+import { lucideChevronDown, lucideDisc } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
@@ -23,13 +17,20 @@ import { forkJoin } from 'rxjs';
 import { DeezerService } from '../../services/deezer.service';
 import { DeezerAlbum, DeezerArtist, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
+import { TrackRowComponent } from '../../shared/track-row/track-row';
 
 @Component({
   selector: 'app-artist-page',
-  imports: [HlmCardImports, HlmButtonImports, HlmSpinnerImports, NgIcon, DecimalPipe, SlicePipe],
-  providers: [
-    provideIcons({ lucidePlay, lucidePause, lucideChevronDown, lucideClock, lucideDisc }),
+  imports: [
+    HlmCardImports,
+    HlmButtonImports,
+    HlmSpinnerImports,
+    NgIcon,
+    DecimalPipe,
+    SlicePipe,
+    TrackRowComponent,
   ],
+  providers: [provideIcons({ lucideChevronDown, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './artist.html',
 })
@@ -44,7 +45,6 @@ export class Artist implements OnInit {
   readonly artist = signal<DeezerArtist | null>(null);
   readonly topTracks = signal<DeezerTrack[]>([]);
   readonly albums = signal<DeezerAlbum[]>([]);
-  readonly hoveredTrack = signal<number | null>(null);
 
   readonly tracksLimit = signal(5);
   readonly albumsLimit = signal(6);
@@ -75,20 +75,14 @@ export class Artist implements OnInit {
   }
 
   showMoreTracks(): void {
-    this.tracksLimit.update((currentLimit) => currentLimit + 5);
+    this.tracksLimit.update((current) => current + 5);
   }
 
   showMoreAlbums(): void {
-    this.albumsLimit.update((currentLimit) => currentLimit + 6);
+    this.albumsLimit.update((current) => current + 6);
   }
 
   navigateToAlbum(albumId: number): void {
     this.router.navigate(['/album', albumId]);
-  }
-
-  formatDuration(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const remainingSeconds = totalSeconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 }

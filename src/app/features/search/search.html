@@ -57,7 +57,7 @@
               <div>
                 <h3 hlmCardTitle>{{ artist.name }}</h3>
                 <p hlmCardDescription>
-                  {{ artist.nb_fan | number }} fans · {{ artist.nb_album }} albums
+                  {{ artist.nb_fan | number }} fans | {{ artist.nb_album }} albums
                 </p>
               </div>
             </div>
@@ -90,7 +90,7 @@
               <div>
                 <h3 hlmCardTitle>{{ album.title }}</h3>
                 <p hlmCardDescription>
-                  {{ album.artist.name }} · {{ album.release_date | date: 'yyyy' }}
+                  {{ album.artist.name }} | {{ album.release_date | date: 'yyyy' }}
                 </p>
               </div>
             </div>
@@ -142,7 +142,7 @@
                   {{ track.title }}
                 </h3>
                 <p hlmCardDescription>
-                  {{ track.artist.name }} · {{ formatDuration(track.duration) }}
+                  {{ track.artist.name }} | {{ track.duration | formatDuration }}
                 </p>
               </div>
               @if (!track.preview) {
