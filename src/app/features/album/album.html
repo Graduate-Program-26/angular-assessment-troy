@@ -49,6 +49,15 @@
           @if (albumData.label) {
             · {{ albumData.label }}
           }
+          @if (albumData.genres?.data?.length) {
+            ·
+            @for (genre of albumData.genres!.data; track genre.id; let last = $last) {
+              {{ genre.name }}
+              @if (!last) {
+                ,
+              }
+            }
+          }
         </p>
       </div>
     </div>
@@ -80,63 +89,15 @@
 
       <div class="flex flex-col">
         @for (track of tracks(); track track.id; let index = $index) {
-          <div
-            class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-4 px-3 py-2 rounded-md cursor-pointer hover:bg-accent transition-colors group"
-            [class.text-primary]="playerStore.isCurrentTrack(track.id)"
-            tabindex="0"
-            (click)="playerStore.toggle(track, tracks())"
-            (keydown.enter)="playerStore.toggle(track, tracks())"
-            (keydown.space)="playerStore.toggle(track, tracks())"
-            (mouseenter)="hoveredTrack.set(track.id)"
-            (mouseleave)="hoveredTrack.set(null)"
-          >
-            <div class="w-6 text-center text-sm text-muted-foreground shrink-0">
-              @if (hoveredTrack() === track.id || playerStore.isCurrentTrack(track.id)) {
-                <ng-icon
-                  [name]="
-                    playerStore.isCurrentTrack(track.id) && playerStore.isPlaying()
-                      ? 'lucidePause'
-                      : 'lucidePlay'
-                  "
-                  size="14"
-                />
-              } @else {
-                {{ index + 1 }}
-              }
-            </div>
-
-            <div class="min-w-0">
-              <p class="text-sm font-medium truncate">{{ track.title }}</p>
-              <p class="text-xs text-muted-foreground">{{ track.artist.name }}</p>
-            </div>
-
-            <ng-template #playlistMenu>
-              <hlm-dropdown-menu>
-                <hlm-dropdown-menu-label>Add to playlist</hlm-dropdown-menu-label>
-                <hlm-dropdown-menu-separator />
-                @for (playlist of playlistStore.playlists(); track playlist.id) {
-                  <button hlmDropdownMenuItem (click)="addToPlaylist(track, playlist.id!)">
-                    {{ playlist.name }}
-                  </button>
-                }
-              </hlm-dropdown-menu>
-            </ng-template>
-
-            <button
-              hlmBtn
-              variant="ghost"
-              size="icon"
-              class="opacity-0 group-hover:opacity-100 h-7 w-7"
-              [hlmDropdownMenuTrigger]="playlistMenu"
-              (click)="$event.stopPropagation()"
-            >
-              <ng-icon name="lucideListPlus" size="14" />
-            </button>
-
-            <span class="text-xs text-muted-foreground w-10 text-right">
-              {{ formatDuration(track.duration) }}
-            </span>
-          </div>
+          <app-track-row
+            [track]="track"
+            [index]="index"
+            [isActive]="playerStore.isCurrentTrack(track.id)"
+            [isPlaying]="playerStore.isPlaying()"
+            [playlists]="playlistStore.playlists()"
+            (play)="playerStore.toggle($event, tracks())"
+            (addToPlaylist)="onAddToPlaylist($event)"
+          />
         }
       </div>
     </div>

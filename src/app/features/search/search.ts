@@ -1,5 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { HlmInputImports } from '@spartan-ng/helm/input';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -14,10 +23,11 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { DecimalPipe, DatePipe } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, forkJoin, switchMap } from 'rxjs';
 import { DeezerService } from '../../services/deezer.service';
 import { DeezerArtist, DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
+import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 
 interface SearchResults {
   artists: DeezerArtist[];
@@ -27,7 +37,9 @@ interface SearchResults {
 
 @Component({
   selector: 'app-search',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ReactiveFormsModule,
     NgIcon,
     HlmInputImports,
     HlmCardImports,
@@ -35,6 +47,7 @@ interface SearchResults {
     HlmTabsImports,
     DecimalPipe,
     DatePipe,
+    FormatDurationPipe,
   ],
   providers: [
     provideIcons({ lucideSearch, lucideMusic, lucideDisc, lucideUser, lucidePlay, lucidePause }),
@@ -42,10 +55,12 @@ interface SearchResults {
   templateUrl: './search.html',
   styleUrl: './search.scss',
 })
-export class Search {
+export class Search implements OnInit, OnDestroy {
   private readonly deezer = inject(DeezerService);
   private readonly router = inject(Router);
   readonly player = inject(PlayerStore);
+
+  readonly searchControl = new FormControl('', { nonNullable: true });
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -56,38 +71,32 @@ export class Search {
     return r.artists.length > 0 || r.albums.length > 0 || r.songs.length > 0;
   });
 
-  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private subscription!: Subscription;
 
-  navigateToArtist(id: number): void {
-    this.router.navigate(['/artist', id]);
-  }
-  navigateToAlbum(id: number): void {
-    this.router.navigate(['/album', id]);
-  }
+  ngOnInit(): void {
+    this.subscription = this.searchControl.valueChanges
+      .pipe(
+        debounceTime(800),
+        distinctUntilChanged(),
+        switchMap((query) => {
+          const trimmed = query.trim();
+          this.results.set({ artists: [], albums: [], songs: [] });
+          this.error.set(null);
 
-  formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  }
+          if (!trimmed) {
+            this.loading.set(false);
+            return [];
+          }
 
-  onSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.trim();
-
-    this.results.set({ artists: [], albums: [], songs: [] });
-    this.error.set(null);
-
-    if (this.debounceTimer) clearTimeout(this.debounceTimer);
-    if (!value) return;
-
-    this.loading.set(true);
-
-    this.debounceTimer = setTimeout(() => {
-      forkJoin({
-        artists: this.deezer.searchArtists(value),
-        albums: this.deezer.searchAlbums(value),
-        songs: this.deezer.searchTracks(value),
-      }).subscribe({
+          this.loading.set(true);
+          return forkJoin({
+            artists: this.deezer.searchArtists(trimmed),
+            albums: this.deezer.searchAlbums(trimmed),
+            songs: this.deezer.searchTracks(trimmed),
+          });
+        }),
+      )
+      .subscribe({
         next: ({ artists, albums, songs }) => {
           this.results.set({ artists: artists.data, albums: albums.data, songs: songs.data });
           this.loading.set(false);
@@ -97,6 +106,17 @@ export class Search {
           this.loading.set(false);
         },
       });
-    }, 800);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  navigateToArtist(id: number): void {
+    this.router.navigate(['/artist', id]);
+  }
+
+  navigateToAlbum(id: number): void {
+    this.router.navigate(['/album', id]);
   }
 }
