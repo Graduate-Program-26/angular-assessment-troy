@@ -1,7 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
+
+app.use(cors({
+  origin: 'https://deezerfy.onrender.com',
+}));
 
 app.use('/deezer-api', createProxyMiddleware({
   target: 'https://api.deezer.com',
