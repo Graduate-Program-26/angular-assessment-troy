@@ -23,4 +23,8 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/playlist-detail/playlist-detail').then((m) => m.PlaylistDetail),
   },
+  {
+    path: '**',
+    loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound),
+  },
 ];

@@ -56,6 +56,10 @@
           [min]="0"
           [max]="store.duration()"
           [value]="store.currentTime()"
+          aria-label="Seek"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuemax]="store.duration()"
+          [attr.aria-valuenow]="store.currentTime()"
           (input)="onSeek($event)"
         />
         <span class="w-8 text-xs text-muted-foreground">
@@ -70,6 +74,10 @@
       [max]="1"
       [step]="0.02"
       [value]="store.volume()"
+      aria-label="Volume"
+      [attr.aria-valuemin]="0"
+      [attr.aria-valuemax]="1"
+      [attr.aria-valuenow]="store.volume()"
       (input)="onVolumeChange($event)"
     />
   </div>

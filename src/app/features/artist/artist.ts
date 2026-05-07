@@ -17,6 +17,7 @@ import { forkJoin } from 'rxjs';
 import { DeezerService } from '../../services/deezer.service';
 import { DeezerAlbum, DeezerArtist, DeezerTrack } from '../../services/deezer.models';
 import { PlayerStore } from '../../store/player.store';
+import { PlaylistStore } from '../../store/playlist.store';
 import { TrackRowComponent } from '../../shared/track-row/track-row';
 
 @Component({
@@ -39,6 +40,7 @@ export class Artist implements OnInit {
   private readonly router = inject(Router);
   private readonly deezer = inject(DeezerService);
   readonly playerStore = inject(PlayerStore);
+  readonly playlistStore = inject(PlaylistStore);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -56,6 +58,7 @@ export class Artist implements OnInit {
 
   ngOnInit(): void {
     const artistId = Number(this.route.snapshot.paramMap.get('id'));
+    this.playlistStore.loadPlaylists();
     forkJoin({
       artist: this.deezer.getArtist(artistId),
       tracks: this.deezer.getArtistTopTracks(artistId),
@@ -84,5 +87,16 @@ export class Artist implements OnInit {
 
   navigateToAlbum(albumId: number): void {
     this.router.navigate(['/album', albumId]);
+  }
+
+  onAddToPlaylist(event: { track: DeezerTrack; playlistId: number }): void {
+    this.playlistStore.addSong({
+      title: event.track.title,
+      artist: event.track.artist.name,
+      playlistId: event.playlistId,
+      order: this.playlistStore.activeSongs().length,
+      duration: event.track.duration,
+      preview: event.track.preview,
+    });
   }
 }

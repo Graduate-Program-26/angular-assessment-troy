@@ -40,7 +40,9 @@
             [index]="index"
             [isActive]="playerStore.isCurrentTrack(track.id)"
             [isPlaying]="playerStore.isPlaying()"
+            [playlists]="playlistStore.playlists()"
             (play)="playerStore.toggle($event, topTracks())"
+            (addToPlaylist)="onAddToPlaylist($event)"
           />
         }
       </div>
