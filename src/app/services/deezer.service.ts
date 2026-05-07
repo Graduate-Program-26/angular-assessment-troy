@@ -8,22 +8,34 @@ export class DeezerService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/deezer-api';
 
-  searchTracks(query: string, limit = 25): Observable<DeezerSearchResponse<DeezerTrack>> {
-    const params = new HttpParams().set('q', query).set('limit', limit);
+  searchTracks(
+    query: string,
+    limit = 25,
+    index = 0,
+  ): Observable<DeezerSearchResponse<DeezerTrack>> {
+    const params = new HttpParams().set('q', query).set('limit', limit).set('index', index);
     return this.http.get<DeezerSearchResponse<DeezerTrack>>(`${this.baseUrl}/search/track`, {
       params,
     });
   }
 
-  searchAlbums(query: string, limit = 25): Observable<DeezerSearchResponse<DeezerAlbum>> {
-    const params = new HttpParams().set('q', query).set('limit', limit);
+  searchAlbums(
+    query: string,
+    limit = 25,
+    index = 0,
+  ): Observable<DeezerSearchResponse<DeezerAlbum>> {
+    const params = new HttpParams().set('q', query).set('limit', limit).set('index', index);
     return this.http.get<DeezerSearchResponse<DeezerAlbum>>(`${this.baseUrl}/search/album`, {
       params,
     });
   }
 
-  searchArtists(query: string, limit = 25): Observable<DeezerSearchResponse<DeezerArtist>> {
-    const params = new HttpParams().set('q', query).set('limit', limit);
+  searchArtists(
+    query: string,
+    limit = 25,
+    index = 0,
+  ): Observable<DeezerSearchResponse<DeezerArtist>> {
+    const params = new HttpParams().set('q', query).set('limit', limit).set('index', index);
     return this.http.get<DeezerSearchResponse<DeezerArtist>>(`${this.baseUrl}/search/artist`, {
       params,
     });
