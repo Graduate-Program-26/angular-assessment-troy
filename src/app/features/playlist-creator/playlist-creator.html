@@ -43,7 +43,7 @@
             type="text"
             [value]="editingName()"
             aria-label="Rename playlist"
-            (input)="editingName.set($any($event.target).value)"
+            (input)="onEditInput($event)"
             (keydown.enter)="confirmEdit($event)"
             (keydown.escape)="cancelEdit($event)"
             (click)="$event.stopPropagation()"

@@ -79,4 +79,8 @@ export class PlaylistsComponent implements OnInit {
     event.stopPropagation();
     this.store.deletePlaylist(id);
   }
+
+  onEditInput(event: Event): void {
+    this.editingName.set((event.target as HTMLInputElement).value);
+  }
 }
