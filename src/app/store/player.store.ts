@@ -30,6 +30,7 @@ export class PlayerStore {
   readonly hasNext = computed(() => this.currentIndex() < this.queue().length - 1);
 
   constructor() {
+    //all these events are fired by HTMLMediaElement
     this.audioElement.addEventListener('timeupdate', () =>
       this.currentTime.set(this.audioElement.currentTime),
     );

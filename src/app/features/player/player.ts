@@ -31,6 +31,7 @@ import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 export class Player {
   readonly store = inject(PlayerStore);
 
+  // had to use + coerce here to make it a number
   onSeek(event: Event): void {
     this.store.seek(+(event.target as HTMLInputElement).value);
   }
