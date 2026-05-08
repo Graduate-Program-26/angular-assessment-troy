@@ -101,6 +101,7 @@ export class Search {
   }
 
   private async performSearch(query: string): Promise<void> {
+    //so each search query owns a token it prevents race conditions because it discards responses that are redundant
     const token = ++this.searchToken;
     this.query.set(query);
     this.results.set(emptyResults);
@@ -130,7 +131,7 @@ export class Search {
       });
     } catch {
       if (token !== this.searchToken) return;
-      this.error.set('Failed to fetch results. Check your connection or proxy config.');
+      this.error.set('Failed to fetch results');
     } finally {
       if (token === this.searchToken) this.loading.set(false);
     }
