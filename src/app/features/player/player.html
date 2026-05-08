@@ -48,7 +48,7 @@
 
       <div class="flex w-full max-w-lg items-center gap-2">
         <span class="w-8 text-right text-xs text-muted-foreground">
-          {{ formatTime(store.currentTime()) }}
+          {{ store.currentTime() | formatDuration }}
         </span>
         <input
           type="range"
@@ -63,7 +63,7 @@
           (input)="onSeek($event)"
         />
         <span class="w-8 text-xs text-muted-foreground">
-          {{ formatTime(store.duration()) }}
+          {{ store.duration() | formatDuration }}
         </span>
       </div>
     </div>
