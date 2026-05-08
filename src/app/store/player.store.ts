@@ -1,16 +1,24 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
-import { DeezerTrack } from '../services/deezer.models';
+
+export interface PlayableTrack {
+  id: number;
+  title: string;
+  preview: string;
+  duration: number;
+  artist: { name: string };
+  album?: { cover_medium?: string; title?: string };
+}
 
 @Injectable({ providedIn: 'root' })
 export class PlayerStore {
   private readonly audioElement = new Audio();
 
-  readonly currentTrack = signal<DeezerTrack | null>(null);
+  readonly currentTrack = signal<PlayableTrack | null>(null);
   readonly isPlaying = signal(false);
   readonly currentTime = signal(0);
   readonly duration = signal(0);
   readonly volume = signal(1);
-  readonly queue = signal<DeezerTrack[]>([]);
+  readonly queue = signal<PlayableTrack[]>([]);
 
   readonly currentIndex = computed(() => {
     const track = this.currentTrack();
@@ -40,7 +48,7 @@ export class PlayerStore {
     });
   }
 
-  toggle(track: DeezerTrack, queue: DeezerTrack[] = []): void {
+  toggle(track: PlayableTrack, queue: PlayableTrack[] = []): void {
     if (this.currentTrack()?.id === track.id) {
       if (this.isPlaying()) {
         this.pause();
@@ -52,7 +60,7 @@ export class PlayerStore {
     }
   }
 
-  play(track: DeezerTrack, queue: DeezerTrack[] = []): void {
+  play(track: PlayableTrack, queue: PlayableTrack[] = []): void {
     if (queue.length > 0) {
       this.queue.set(queue);
     } else if (!this.queue().find((queuedTrack) => queuedTrack.id === track.id)) {

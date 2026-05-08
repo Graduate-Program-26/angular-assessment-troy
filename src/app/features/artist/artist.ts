@@ -19,6 +19,7 @@ import { DeezerAlbum, DeezerArtist, DeezerTrack } from '../../services/deezer.mo
 import { PlayerStore } from '../../store/player.store';
 import { PlaylistStore } from '../../store/playlist.store';
 import { TrackRowComponent } from '../../shared/track-row/track-row';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-artist-page',
@@ -30,6 +31,7 @@ import { TrackRowComponent } from '../../shared/track-row/track-row';
     DecimalPipe,
     SlicePipe,
     TrackRowComponent,
+    BreadcrumbComponent,
   ],
   providers: [provideIcons({ lucideChevronDown, lucideDisc })],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +57,25 @@ export class Artist implements OnInit {
   readonly visibleAlbums = computed(() => this.albums().slice(0, this.albumsLimit()));
   readonly hasMoreTracks = computed(() => this.topTracks().length > this.tracksLimit());
   readonly hasMoreAlbums = computed(() => this.albums().length > this.albumsLimit());
+
+  readonly artistGenres = computed(() => {
+    const seen = new Set<string>();
+    const genres: string[] = [];
+    for (const album of this.albums()) {
+      for (const genre of album.genres?.data ?? []) {
+        if (!seen.has(genre.name)) {
+          seen.add(genre.name);
+          genres.push(genre.name);
+        }
+      }
+    }
+    return genres;
+  });
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const artistData = this.artist();
+    return [{ label: 'Search', route: ['/'] }, ...(artistData ? [{ label: artistData.name }] : [])];
+  });
 
   ngOnInit(): void {
     const artistId = Number(this.route.snapshot.paramMap.get('id'));

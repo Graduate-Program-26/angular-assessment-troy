@@ -85,9 +85,6 @@ export class Search {
     return r.songs.length < r.totals.songs;
   });
 
-  //I took Joes adivce, this was very confusing with the switchMap / forkjoin / next spaghetti it is much
-  //cleaner with signals
-
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private searchToken = 0;
 
@@ -166,7 +163,7 @@ export class Search {
         }));
       }
     } catch {
-      //
+      this.error.set('Failed to load more results.');
     } finally {
       this.loadingMore.set(false);
     }

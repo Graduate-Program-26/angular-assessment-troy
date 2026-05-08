@@ -3,10 +3,10 @@
     class="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm h-20 flex items-center px-6 gap-6"
   >
     <div class="flex items-center gap-3 w-56 min-w-0">
-      @if (track.album.cover_medium) {
+      @if (track.album?.cover_medium) {
         <img
-          [src]="track.album.cover_medium"
-          [alt]="track.album.title"
+          [src]="track.album?.cover_medium"
+          [alt]="track.album?.title ?? track.title"
           class="w-12 h-12 rounded object-cover shrink-0"
         />
       }
@@ -48,7 +48,7 @@
 
       <div class="flex w-full max-w-lg items-center gap-2">
         <span class="w-8 text-right text-xs text-muted-foreground">
-          {{ formatTime(store.currentTime()) }}
+          {{ store.currentTime() | formatDuration }}
         </span>
         <input
           type="range"
@@ -63,7 +63,7 @@
           (input)="onSeek($event)"
         />
         <span class="w-8 text-xs text-muted-foreground">
-          {{ formatTime(store.duration()) }}
+          {{ store.duration() | formatDuration }}
         </span>
       </div>
     </div>

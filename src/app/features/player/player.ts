@@ -10,11 +10,12 @@ import {
 } from '@ng-icons/lucide';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { PlayerStore } from '../../store/player.store';
+import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 
 @Component({
   selector: 'app-player',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgIcon, HlmButtonImports],
+  imports: [NgIcon, HlmButtonImports, FormatDurationPipe],
   providers: [
     provideIcons({
       lucidePlay,
@@ -29,12 +30,6 @@ import { PlayerStore } from '../../store/player.store';
 })
 export class Player {
   readonly store = inject(PlayerStore);
-
-  formatTime(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const remainingSeconds = Math.floor(totalSeconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
 
   onSeek(event: Event): void {
     this.store.seek(+(event.target as HTMLInputElement).value);

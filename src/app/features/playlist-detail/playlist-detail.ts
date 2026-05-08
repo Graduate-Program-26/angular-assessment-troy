@@ -1,15 +1,22 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePlay, lucidePause } from '@ng-icons/lucide';
+import { lucidePlay, lucidePause, lucideTrash2 } from '@ng-icons/lucide';
 import { PlaylistStore } from '../../store/playlist.store';
-import { PlayerStore } from '../../store/player.store';
+import { PlayerStore, PlayableTrack } from '../../store/player.store';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { DeezerTrack } from '../../services/deezer.models';
+import { Song } from '../../db/db';
 import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
+
+type StoredSong = Song & { id: number; preview: string };
+
+function isPlayable(song: Song): song is StoredSong {
+  return song.id !== undefined && !!song.preview;
+}
 
 @Component({
   selector: 'app-playlist-detail',
@@ -22,8 +29,9 @@ import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
     HlmButtonImports,
     NgIcon,
     FormatDurationPipe,
+    BreadcrumbComponent,
   ],
-  providers: [provideIcons({ lucidePlay, lucidePause })],
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideTrash2 })],
   templateUrl: './playlist-detail.html',
 })
 export class PlaylistDetail implements OnInit {
@@ -31,57 +39,44 @@ export class PlaylistDetail implements OnInit {
   readonly playerStore = inject(PlayerStore);
   readonly route = inject(ActivatedRoute);
 
+  readonly queue = computed<PlayableTrack[]>(() =>
+    this.store
+      .activeSongs()
+      .filter(isPlayable)
+      .map((song) => ({
+        id: song.id,
+        title: song.title,
+        preview: song.preview,
+        duration: song.duration,
+        artist: { name: song.artist },
+      })),
+  );
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const playlist = this.store.activePlaylist();
+    return [
+      { label: 'Playlists', route: ['/playlist'] },
+      ...(playlist ? [{ label: playlist.name }] : []),
+    ];
+  });
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.store.loadPlaylists();
     this.store.selectPlaylist(id);
   }
 
-  asQueue(): DeezerTrack[] {
-    return this.store
-      .activeSongs()
-      .filter((s) => !!s.preview)
-      .map((s) => ({
-        id: s.id ?? 0,
-        title: s.title,
-        duration: s.duration,
-        preview: s.preview ?? '',
-        rank: 0,
-        link: '',
-        artist: {
-          id: 0,
-          name: s.artist,
-          picture: '',
-          picture_medium: '',
-          nb_album: 0,
-          nb_fan: 0,
-          link: '',
-        },
-        album: {
-          id: 0,
-          title: '',
-          cover: '',
-          cover_medium: '',
-          release_date: '',
-          nb_tracks: 0,
-          link: '',
-          artist: {
-            id: 0,
-            name: s.artist,
-            picture: '',
-            picture_medium: '',
-            nb_album: 0,
-            nb_fan: 0,
-            link: '',
-          },
-        },
-      }));
+  playSong(index: number): void {
+    const trackQueue = this.queue();
+    if (!trackQueue[index]) return;
+    this.playerStore.toggle(trackQueue[index], trackQueue);
   }
 
-  playSong(index: number): void {
-    const queue = this.asQueue();
-    if (!queue[index]) return;
-    this.playerStore.toggle(queue[index], queue);
+  removeSong(event: Event, songId: number | undefined): void {
+    event.stopPropagation();
+    const playlistId = this.store.activePlaylistId();
+    if (songId === undefined || playlistId === null) return;
+    this.store.removeSong(songId, playlistId);
   }
 
   isSongPlaying(songId: number | undefined): boolean {
