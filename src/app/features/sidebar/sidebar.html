@@ -1,0 +1,70 @@
+<div hlmSidebarWrapper>
+  <hlm-sidebar>
+    <div hlmSidebarHeader>
+      <div class="flex items-center gap-2 px-1 py-1">
+        <ng-icon hlm name="lucideRadio" size="sm" class="text-primary shrink-0" />
+        <span class="font-semibold tracking-tight">Deezerfy</span>
+      </div>
+    </div>
+
+    <div hlmSidebarContent>
+      <div hlmSidebarGroup>
+        <div hlmSidebarGroupContent>
+          <ul hlmSidebarMenu>
+            <li hlmSidebarMenuItem>
+              <a hlmSidebarMenuButton [routerLink]="['/']">
+                <ng-icon hlm size="sm" name="lucideSearch" />
+                Search
+              </a>
+            </li>
+            <li hlmSidebarMenuItem>
+              <a hlmSidebarMenuButton [routerLink]="['/playlist']">
+                <ng-icon hlm size="sm" name="lucideListMusic" />
+                Playlists
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div hlmSidebarFooter class="p-2">
+      <button
+        hlmBtn
+        variant="ghost"
+        size="sm"
+        class="w-full justify-start gap-2"
+        [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+        (click)="theme.toggle()"
+      >
+        <ng-icon hlm [name]="theme.isDark() ? 'lucideSun' : 'lucideMoon'" size="sm" />
+        {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+      </button>
+      @if (isAuthenticated()) {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          class="w-full justify-start gap-2"
+          (click)="logout()"
+        >
+          <ng-icon hlm name="lucideLogOut" size="sm" />
+          Logout
+        </button>
+      } @else {
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          class="w-full justify-start gap-2"
+          (click)="login()"
+        >
+          <ng-icon hlm name="lucideLogIn" size="sm" />
+          Login
+        </button>
+      }
+    </div>
+  </hlm-sidebar>
+
+  <ng-content />
+</div>

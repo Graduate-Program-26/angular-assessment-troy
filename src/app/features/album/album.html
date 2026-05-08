@@ -1,0 +1,119 @@
+@if (loading()) {
+  <div class="flex justify-center mt-20">
+    <hlm-spinner />
+  </div>
+}
+
+@if (error()) {
+  <p class="text-destructive text-center mt-20">{{ error() }}</p>
+}
+
+@if (!loading() && album(); as albumData) {
+  <div class="pb-32">
+    <div class="px-8 pt-6">
+      <app-breadcrumb [items]="breadcrumbs()" />
+    </div>
+
+    <div class="flex items-end gap-6 px-8 pt-6 pb-6 bg-gradient-to-b from-muted to-background">
+      @if (albumData.cover_xl || albumData.cover_medium) {
+        <img
+          [src]="albumData.cover_xl ?? albumData.cover_medium"
+          [alt]="albumData.title"
+          class="w-48 h-48 rounded-md object-cover shadow-xl shrink-0"
+        />
+      } @else {
+        <div
+          class="w-48 h-48 rounded-md bg-muted flex items-center justify-center shadow-xl shrink-0"
+        >
+          <ng-icon name="lucideDisc" size="48" class="text-muted-foreground" />
+        </div>
+      }
+      <div class="min-w-0">
+        <p class="text-xs uppercase tracking-widest text-muted-foreground">
+          {{ albumData.record_type ?? 'Album' }}
+        </p>
+        <h1 class="text-4xl font-bold mt-1 truncate">{{ albumData.title }}</h1>
+        <div
+          class="flex items-center gap-2 mt-3 cursor-pointer hover:underline w-fit"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Go to artist ' + albumData.artist.name"
+          (click)="navigateToArtist(albumData.artist.id)"
+          (keydown.enter)="navigateToArtist(albumData.artist.id)"
+          (keydown.space)="navigateToArtist(albumData.artist.id)"
+        >
+          <img
+            [src]="albumData.artist.picture_medium"
+            [alt]="albumData.artist.name"
+            class="w-6 h-6 rounded-full object-cover"
+          />
+          <span class="text-sm font-medium">{{ albumData.artist.name }}</span>
+        </div>
+        <p class="text-xs text-muted-foreground mt-2">
+          {{ albumData.release_date | slice: 0 : 4 }}
+          | {{ albumData.nb_tracks }} tracks · {{ totalDuration() }}
+          @if (albumData.label) {
+            | {{ albumData.label }}
+          }
+          @if (albumData.genres?.data?.length) {
+            |
+            @for (genre of albumData.genres!.data; track genre.id; let last = $last) {
+              {{ genre.name }}
+              @if (!last) {
+                ,
+              }
+            }
+          }
+        </p>
+      </div>
+    </div>
+
+    <div class="px-8">
+      <div class="flex items-center gap-3 mb-6">
+        <button hlmBtn size="icon" class="rounded-full w-12 h-12" (click)="playFromStart()">
+          <ng-icon
+            [name]="
+              playerStore.isPlaying() &&
+              tracks().length > 0 &&
+              playerStore.isCurrentTrack(tracks()[0].id)
+                ? 'lucidePause'
+                : 'lucidePlay'
+            "
+            size="20"
+          />
+        </button>
+      </div>
+
+      @defer (on viewport) {
+        <div
+          class="grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-4 text-xs text-muted-foreground px-3 mb-2 border-b border-border pb-2"
+        >
+          <span class="w-6 text-center">#</span>
+          <span>Title</span>
+          <span></span>
+          <ng-icon name="lucideClock" size="14" />
+        </div>
+
+        <div class="flex flex-col">
+          @for (track of tracks(); track track.id; let index = $index) {
+            <app-track-row
+              [track]="track"
+              [index]="index"
+              [isActive]="playerStore.isCurrentTrack(track.id)"
+              [isPlaying]="playerStore.isPlaying()"
+              [playlists]="playlistStore.playlists()"
+              (play)="playerStore.toggle($event, tracks())"
+              (addToPlaylist)="onAddToPlaylist($event)"
+            />
+          }
+        </div>
+      } @placeholder {
+        <div class="flex flex-col gap-2 px-3">
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <div class="h-12 rounded-md bg-muted animate-pulse"></div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

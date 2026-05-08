@@ -1,0 +1,114 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePlay, lucidePause, lucideClock, lucideDisc } from '@ng-icons/lucide';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { SlicePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { DeezerService } from '../../services/deezer.service';
+import { DeezerAlbum, DeezerTrack } from '../../services/deezer.models';
+import { PlayerStore } from '../../store/player.store';
+import { PlaylistStore } from '../../store/playlist.store';
+import { TrackRowComponent } from '../../shared/track-row/track-row';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/breadcrumb/breadcrumb';
+
+@Component({
+  selector: 'app-album',
+  imports: [
+    HlmCardImports,
+    HlmButtonImports,
+    HlmSeparatorImports,
+    HlmSpinnerImports,
+    NgIcon,
+    SlicePipe,
+    TrackRowComponent,
+    BreadcrumbComponent,
+  ],
+  providers: [provideIcons({ lucidePlay, lucidePause, lucideClock, lucideDisc })],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './album.html',
+  styleUrl: './album.scss',
+})
+export class Album implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly deezer = inject(DeezerService);
+  readonly playerStore = inject(PlayerStore);
+  readonly playlistStore = inject(PlaylistStore);
+
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly album = signal<DeezerAlbum | null>(null);
+  readonly tracks = signal<DeezerTrack[]>([]);
+
+  readonly totalDuration = computed(() => {
+    const total = this.tracks().reduce((acc, track) => acc + track.duration, 0);
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    return hours > 0 ? `${hours} hr ${minutes} min` : `${minutes} min`;
+  });
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const albumData = this.album();
+    return [
+      { label: 'Search', route: ['/'] },
+      ...(albumData
+        ? [
+            { label: albumData.artist.name, route: ['/artist', String(albumData.artist.id)] },
+            { label: albumData.title },
+          ]
+        : []),
+    ];
+  });
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.playlistStore.loadPlaylists();
+    forkJoin({
+      album: this.deezer.getAlbum(id),
+      tracks: this.deezer.getAlbumTracks(id),
+    }).subscribe({
+      next: ({ album, tracks }) => {
+        this.album.set(album);
+        this.tracks.set(tracks.data.map((track) => ({ ...track, album })));
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load album.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  navigateToArtist(id: number): void {
+    this.router.navigate(['/artist', id]);
+  }
+
+  playFromStart(): void {
+    const trackList = this.tracks();
+    if (trackList.length) {
+      this.playerStore.toggle(trackList[0], trackList);
+    }
+  }
+
+  onAddToPlaylist(event: { track: DeezerTrack; playlistId: number }): void {
+    this.playlistStore.addSong({
+      title: event.track.title,
+      artist: event.track.artist.name,
+      playlistId: event.playlistId,
+      order: this.playlistStore.activeSongs().length,
+      duration: event.track.duration,
+      preview: event.track.preview,
+    });
+  }
+}

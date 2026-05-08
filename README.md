@@ -1,59 +1,63 @@
-# AngularAssessmentTroy
+# Deezerfy
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
+Deezerfy is a Deezer clone which utilizes the free Deezer API to search for artists, albums and songs. The user can add and remove songs from a playlist which they may also rename or delete. The playlists are stored in IndexDB.
 
-## Development server
+## Live URL
 
-To start a local development server, run:
+Deezerfy is hosted at https://deezerfy.onrender.com
 
-```bash
-ng serve
-```
+## Prerequisites
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node 22
+- Angular 21
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Setup
 
 ```bash
-ng generate component component-name
+git clone https://github.com/Graduate-Program-26/angular-assessment-troy.git
+cd angular-assessment-troy
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Navigate to `http://localhost:4200`
 
-```bash
-ng generate --help
-```
+## Tech stack
 
-## Building
+- Angular 21: standalone components, signals-first state, new control flow
+- NgRx Signals: `signalStore` for playlist state
+- spartan/ui: headless component primitives
+- Tailwind CSS v4
+- idb: IndexedDB wrapper for playlist storage
 
-To build the project run:
+## Screenshots
 
-```bash
-ng build
-```
+Search Page
+![](./readme_images/search.png)
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Artist Search
+![](./readme_images/artist_search.png)
 
-## Running unit tests
+Album Search
+![](./readme_images/album_search.png)
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Song Search
+![](./readme_images/song_search.png)
 
-```bash
-ng test
-```
+Artist Page
+![](readme_images/artist_page.png)
 
-## Running end-to-end tests
+Album Page
+![](readme_images/album_page.png)
 
-For end-to-end (e2e) testing, run:
+Playlist Creator
+![](readme_images/playlist_creator.png)
 
-```bash
-ng e2e
-```
+Playlist Details
+![](readme_images/playlist_details.png)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Known limitations
 
-## Additional Resources
+- No artist biography text
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- No OAuth Login

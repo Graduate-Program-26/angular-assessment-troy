@@ -1,0 +1,151 @@
+<div class="flex flex-col items-center px-6 pb-32">
+  <div class="relative w-full max-w-xl mt-8">
+    <ng-icon
+      name="lucideSearch"
+      class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+      size="16"
+    />
+    <input
+      #searchInput
+      hlmInput
+      class="pl-9 w-full"
+      type="search"
+      placeholder="Search for artists, albums or tracks"
+      aria-label="Search for artists, albums or tracks"
+      (input)="onQueryChange(searchInput.value)"
+    />
+  </div>
+
+  @if (loading()) {
+    <hlm-spinner class="mt-16" />
+  }
+
+  @if (error()) {
+    <p class="mt-8 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  @if (!query() && !loading()) {
+    <div class="flex flex-col items-center gap-4 mt-24 text-muted-foreground select-none">
+      <ng-icon name="lucideSearch" size="80" class="opacity-10" />
+      <p class="text-lg font-medium">What do you want to listen to?</p>
+    </div>
+  }
+
+  @if (query() && !loading() && !hasResults() && !error()) {
+    <p class="mt-16 text-sm text-muted-foreground">No results for "{{ query() }}"</p>
+  }
+
+  @if (!loading() && hasResults()) {
+    <hlm-tabs class="w-full max-w-4xl mt-6" tab="artists">
+      <hlm-tabs-list class="w-full">
+        <button hlmTabsTrigger="artists">Artists</button>
+        <button hlmTabsTrigger="albums">Albums</button>
+        <button hlmTabsTrigger="songs">Songs</button>
+      </hlm-tabs-list>
+
+      <div hlmTabsContent="artists" class="mt-4">
+        <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          @for (artist of results().artists; track artist.id) {
+            <button
+              class="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-accent transition-colors text-center"
+              (click)="navigateToArtist(artist.id)"
+            >
+              @if (artist.picture_medium) {
+                <img
+                  [src]="artist.picture_medium"
+                  [alt]="artist.name"
+                  class="w-full aspect-square rounded-full object-cover"
+                />
+              } @else {
+                <div
+                  class="w-full aspect-square rounded-full bg-muted flex items-center justify-center"
+                >
+                  <ng-icon name="lucideUser" size="28" class="text-muted-foreground" />
+                </div>
+              }
+              <span class="text-sm font-medium truncate w-full">{{ artist.name }}</span>
+              <span class="text-xs text-muted-foreground">{{ artist.nb_fan | number }} fans</span>
+            </button>
+          }
+        </div>
+
+        @if (hasMoreArtists()) {
+          <div class="flex justify-center mt-6">
+            <button
+              hlmBtn
+              variant="outline"
+              [disabled]="loadingMore()"
+              (click)="loadMore('artists')"
+            >
+              {{ loadingMore() ? 'Loading...' : 'Load more artists' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <div hlmTabsContent="albums" class="mt-4">
+        <div class="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          @for (album of results().albums; track album.id) {
+            <button
+              class="flex flex-col gap-2 p-2 rounded-lg hover:bg-accent transition-colors text-left"
+              (click)="navigateToAlbum(album.id)"
+            >
+              @if (album.cover_medium) {
+                <img
+                  [src]="album.cover_medium"
+                  [alt]="album.title"
+                  class="w-full aspect-square rounded-md object-cover"
+                />
+              } @else {
+                <div
+                  class="w-full aspect-square rounded-md bg-muted flex items-center justify-center"
+                >
+                  <ng-icon name="lucideDisc" size="28" class="text-muted-foreground" />
+                </div>
+              }
+              <p class="text-sm font-medium truncate">{{ album.title }}</p>
+              <p class="text-xs text-muted-foreground truncate">
+                {{ album.artist.name }} · {{ album.release_date | slice: 0 : 4 }}
+              </p>
+            </button>
+          }
+        </div>
+
+        @if (hasMoreAlbums()) {
+          <div class="flex justify-center mt-6">
+            <button
+              hlmBtn
+              variant="outline"
+              [disabled]="loadingMore()"
+              (click)="loadMore('albums')"
+            >
+              {{ loadingMore() ? 'Loading...' : 'Load more albums' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <div hlmTabsContent="songs" class="mt-4 flex flex-col">
+        @for (track of results().songs; track track.id; let index = $index) {
+          <app-track-row
+            [track]="track"
+            [index]="index"
+            [isActive]="player.isCurrentTrack(track.id)"
+            [isPlaying]="player.isPlaying()"
+            [playlists]="playlistStore.playlists()"
+            (play)="player.toggle($event, results().songs)"
+            (addToPlaylist)="onAddToPlaylist($event)"
+          />
+        }
+
+        @if (hasMoreSongs()) {
+          <div class="flex justify-center mt-4">
+            <button hlmBtn variant="outline" [disabled]="loadingMore()" (click)="loadMore('songs')">
+              {{ loadingMore() ? 'Loading...' : 'Load more songs' }}
+            </button>
+          </div>
+        }
+      </div>
+    </hlm-tabs>
+  }
+</div>

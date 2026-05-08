@@ -1,0 +1,84 @@
+@if (store.currentTrack(); as track) {
+  <div
+    class="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm h-20 flex items-center px-6 gap-6"
+  >
+    <div class="flex items-center gap-3 w-56 min-w-0">
+      @if (track.album?.cover_medium) {
+        <img
+          [src]="track.album?.cover_medium"
+          [alt]="track.album?.title ?? track.title"
+          class="w-12 h-12 rounded object-cover shrink-0"
+        />
+      }
+      <div class="min-w-0">
+        <p class="text-sm font-medium truncate">{{ track.title }}</p>
+        <p class="text-xs text-muted-foreground truncate">{{ track.artist.name }}</p>
+      </div>
+    </div>
+
+    <div class="flex flex-1 flex-col items-center gap-1">
+      <div class="flex items-center gap-2">
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          [disabled]="!store.hasPrevious()"
+          (click)="store.previous()"
+        >
+          <ng-icon name="lucideSkipBack" size="18" />
+        </button>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          (click)="store.isPlaying() ? store.pause() : store.resume()"
+        >
+          <ng-icon [name]="store.isPlaying() ? 'lucidePause' : 'lucidePlay'" size="20" />
+        </button>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon"
+          [disabled]="!store.hasNext()"
+          (click)="store.next()"
+        >
+          <ng-icon name="lucideSkipForward" size="18" />
+        </button>
+      </div>
+
+      <div class="flex w-full max-w-lg items-center gap-2">
+        <span class="w-8 text-right text-xs text-muted-foreground">
+          {{ store.currentTime() | formatDuration }}
+        </span>
+        <input
+          type="range"
+          class="h-1 flex-1 cursor-pointer accent-primary"
+          [min]="0"
+          [max]="store.duration()"
+          [value]="store.currentTime()"
+          aria-label="Seek"
+          [attr.aria-valuemin]="0"
+          [attr.aria-valuemax]="store.duration()"
+          [attr.aria-valuenow]="store.currentTime()"
+          (input)="onSeek($event)"
+        />
+        <span class="w-8 text-xs text-muted-foreground">
+          {{ store.duration() | formatDuration }}
+        </span>
+      </div>
+    </div>
+    <input
+      type="range"
+      class="h-1 cursor-pointer accent-primary"
+      [min]="0"
+      [max]="1"
+      [step]="0.02"
+      [value]="store.volume()"
+      aria-label="Volume"
+      [attr.aria-valuemin]="0"
+      [attr.aria-valuemax]="1"
+      [attr.aria-valuenow]="store.volume()"
+      (input)="onVolumeChange($event)"
+    />
+  </div>
+}

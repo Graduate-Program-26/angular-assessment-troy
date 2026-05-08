@@ -1,0 +1,103 @@
+<div class="mx-auto flex max-w-xl flex-col gap-6 p-6">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">Your Playlists</h1>
+    <p class="mt-1 text-sm text-muted-foreground">Create and manage your playlists</p>
+  </div>
+
+  <hlm-separator />
+
+  <div class="flex items-center gap-2" [formGroup]="createForm">
+    <input
+      hlmInput
+      class="flex-1"
+      type="text"
+      placeholder="New playlist name..."
+      aria-label="New playlist name"
+      formControlName="name"
+      (keydown.enter)="create()"
+    />
+    <button hlmBtn [disabled]="createForm.invalid" (click)="create()">Create</button>
+  </div>
+
+  @if (store.playlists().length === 0) {
+    <div class="flex flex-col items-center gap-2 py-12 text-muted-foreground">
+      <ng-icon name="lucideListMusic" class="text-3xl" aria-hidden="true" />
+      <p class="text-sm">No playlists yet. Create one above.</p>
+    </div>
+  }
+
+  <ul class="flex flex-col gap-1.5">
+    @for (playlist of store.playlists(); track playlist.id) {
+      <!-- playlist.id! has non-null because id is optional for inserts but always set after db retrieval, so it'll never be null here-->
+      <li
+        class="group flex cursor-pointer items-center justify-between rounded-md border border-border bg-card px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        [attr.tabindex]="editingId() === playlist.id ? -1 : 0"
+        role="button"
+        [attr.aria-label]="'Open playlist ' + playlist.name"
+        (click)="navigate(playlist.id!)"
+        (keydown.enter)="navigate(playlist.id!)"
+      >
+        @if (editingId() === playlist.id) {
+          <input
+            hlmInput
+            class="flex-1 h-7 py-0 text-sm"
+            type="text"
+            [value]="editingName()"
+            aria-label="Rename playlist"
+            (input)="onEditInput($event)"
+            (keydown.enter)="confirmEdit($event)"
+            (keydown.escape)="cancelEdit($event)"
+            (click)="$event.stopPropagation()"
+          />
+          <div class="flex items-center gap-1 ml-2">
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="h-7 w-7"
+              aria-label="Confirm rename"
+              (click)="confirmEdit($event)"
+            >
+              <ng-icon name="lucideCheck" size="14" aria-hidden="true" />
+            </button>
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="h-7 w-7"
+              aria-label="Cancel rename"
+              (click)="cancelEdit($event)"
+            >
+              <ng-icon name="lucideX" size="14" aria-hidden="true" />
+            </button>
+          </div>
+        } @else {
+          <span>{{ playlist.name }}</span>
+          <div class="flex items-center gap-1">
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="h-7 w-7 opacity-0 group-hover:opacity-100"
+              aria-label="Rename playlist"
+              (click)="startEdit($event, playlist.id!, playlist.name)"
+            >
+              <ng-icon name="lucidePencil" size="14" aria-hidden="true" />
+            </button>
+            <button
+              hlmBtn
+              variant="ghost"
+              size="icon"
+              class="h-7 w-7 text-destructive opacity-0 group-hover:opacity-100"
+              aria-label="Delete playlist"
+              (click)="delete($event, playlist.id!)"
+            >
+              <ng-icon name="lucideTrash2" size="14" aria-hidden="true" />
+            </button>
+            <ng-icon name="lucideChevronRight" class="text-muted-foreground" aria-hidden="true" />
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</div>

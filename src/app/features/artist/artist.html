@@ -1,0 +1,113 @@
+@if (loading()) {
+  <div class="flex justify-center mt-20">
+    <hlm-spinner />
+  </div>
+}
+
+@if (error()) {
+  <p class="text-destructive text-center mt-20">{{ error() }}</p>
+}
+
+@if (!loading() && artist(); as artistData) {
+  <div class="pb-32">
+    <div class="px-8 pt-6">
+      <app-breadcrumb [items]="breadcrumbs()" />
+    </div>
+
+    <div class="relative h-48 bg-cover bg-center">
+      <div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+      <div class="absolute bottom-6 left-8 flex items-end gap-5">
+        <img
+          [src]="artistData.picture_medium"
+          [alt]="artistData.name"
+          class="w-24 h-24 rounded-full object-cover ring-4 ring-background"
+        />
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-widest">Artist</p>
+          <h1 class="text-4xl font-bold">{{ artistData.name }}</h1>
+          <p class="text-sm text-muted-foreground mt-1">
+            {{ artistData.nb_fan | number }} fans | {{ artistData.nb_album }} albums
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="px-8 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground border-b border-border pb-6"
+    >
+      @if (artistGenres().length > 0) {
+        <div class="flex flex-wrap gap-2">
+          @for (genre of artistGenres(); track genre) {
+            <span
+              class="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-medium"
+            >
+              {{ genre }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="px-8 mt-8">
+      <h2 class="text-xl font-semibold mb-4">Top Tracks</h2>
+      <div class="flex flex-col gap-1">
+        @for (track of visibleTracks(); track track.id; let index = $index) {
+          <app-track-row
+            [track]="track"
+            [index]="index"
+            [isActive]="playerStore.isCurrentTrack(track.id)"
+            [isPlaying]="playerStore.isPlaying()"
+            [playlists]="playlistStore.playlists()"
+            (play)="playerStore.toggle($event, topTracks())"
+            (addToPlaylist)="onAddToPlaylist($event)"
+          />
+        }
+      </div>
+
+      @if (hasMoreTracks()) {
+        <button hlmBtn variant="ghost" class="mt-2 text-sm" (click)="showMoreTracks()">
+          <ng-icon name="lucideChevronDown" size="14" class="mr-1" />
+          Show more
+        </button>
+      }
+    </div>
+
+    <div class="px-8 mt-10">
+      <h2 class="text-xl font-semibold mb-4">Albums</h2>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        @for (album of visibleAlbums(); track album.id) {
+          <div
+            class="flex flex-col gap-2 cursor-pointer group"
+            tabindex="0"
+            (click)="navigateToAlbum(album.id)"
+            (keydown.enter)="navigateToAlbum(album.id)"
+            (keydown.space)="navigateToAlbum(album.id)"
+          >
+            @if (album.cover_medium) {
+              <img
+                [src]="album.cover_medium"
+                [alt]="album.title"
+                class="w-full aspect-square rounded-md object-cover group-hover:opacity-80 transition-opacity"
+              />
+            } @else {
+              <div
+                class="w-full aspect-square rounded-md bg-muted flex items-center justify-center"
+              >
+                <ng-icon name="lucideDisc" size="32" class="text-muted-foreground" />
+              </div>
+            }
+            <p class="text-sm font-medium truncate">{{ album.title }}</p>
+            <p class="text-xs text-muted-foreground">{{ album.release_date | slice: 0 : 4 }}</p>
+          </div>
+        }
+      </div>
+
+      @if (hasMoreAlbums()) {
+        <button hlmBtn variant="ghost" class="mt-4 text-sm" (click)="showMoreAlbums()">
+          <ng-icon name="lucideChevronDown" size="14" class="mr-1" />
+          Show more
+        </button>
+      }
+    </div>
+  </div>
+}

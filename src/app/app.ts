@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { HlmSidebarImports } from '@spartan-ng/helm/sidebar';
+import { SidebarComponent } from './features/sidebar/sidebar';
+import { Player } from './features/player/player';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [SidebarComponent, HlmSidebarImports, RouterOutlet, Player],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('angular-assessment-troy');
-}
+export class App {}
